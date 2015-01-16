@@ -1392,11 +1392,7 @@ public class ManagerDaoImpl implements ManagerDao {
 		}
 		
 		if (gebruiker.getDbGebruiker () != null) {
-<<<<<<< Upstream, based on origin/master
 			entityManager.remove (gebruiker.getDbGebruiker ());
-=======
-			entityManager.remove (gebruiker);
->>>>>>> 00418b6 Renamed themebronhouderautorisation table to bronhoudertheme Modified Manager DAO to use DbGebruiker and LdapGebruiker
 		}
 	}
 	
