@@ -1,4 +1,4 @@
-<h1>Bronhouders!</h1>
+#set($contextTitle = 'Bronhouders')
 
 <p>
 	<a href="#springUrl('/ba/gebruikersbeheer/bronhouders/-/create')">Nieuwe bronhouder toevoegen</a>
@@ -43,6 +43,3 @@
 		#end
 	</tbody>
 </table>
-
-<ul>
-</ul>

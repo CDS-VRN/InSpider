@@ -23,6 +23,9 @@ public final class BronhouderController {
 	@Inject
 	private ManagerDao managerDao;
 	
+	/**
+	 * Index page: lists bronhouders.
+	 */
 	@RequestMapping (method = RequestMethod.GET)
 	public String listBronhouders (final Model model) {
 		final List<Bronhouder> bronhouders = managerDao.getAllBronhouders ();
@@ -31,12 +34,29 @@ public final class BronhouderController {
 	
 		return "/ba/gebruikersbeheer/bronhouders";
 	}
-	
+
+	/**
+	 * Displays the form for creating a new bronhouder.
+	 */
 	@RequestMapping (value = "/-/create", method = RequestMethod.GET)
 	public String createBronhouderForm () {
 		return "/ba/gebruikersbeheer/edit-bronhouder";
 	}
 	
+	/**
+	 * Processes a POST of the create bronhouder form. 
+	 */
+	@RequestMapping (value = "/-/create", method = RequestMethod.POST)
+	public String processCreateBronhouderForm () {
+		return "redirect:/ba/gebruikersbeheer/bronhouders";
+		
+	}
+
+	/**
+	 * Displays the form for editing bronhouders.
+	 * 
+	 * @param bronhouderId	The ID of the bronhouder to edit.
+	 */
 	@RequestMapping (value = "/{bronhouderId}/edit", method = RequestMethod.GET)
 	public String editBronhouderForm (final @PathVariable("bronhouderId") long bronhouderId) {
 		final Bronhouder bronhouder = managerDao.getBronhouder (bronhouderId);
@@ -46,7 +66,22 @@ public final class BronhouderController {
 		
 		return "/ba/gebruikersbeheer/edit-bronhouder";
 	}
-	
+
+	/**
+	 * Processes a POST of the bronhouder edit form.
+	 * 
+	 * @param bronhouderId The ID of the bronhouder to save.
+	 */
+	@RequestMapping (value = "/{bronhouderId}/edit", method = RequestMethod.POST)
+	public String processEditBronhouderForm (final @PathVariable ("bronhouderId") long bronhouderId) {
+		return "redirect:/ba/gebruikersbeheer/bronhouders";
+	}
+
+	/**
+	 * Displays the form for deleting a bronhouder.
+	 * 
+	 * @param bronhouderId	The ID of the bronhouder to delete.
+	 */
 	@RequestMapping (value = "/{bronhouderId}/delete", method = RequestMethod.GET)
 	public String deleteBronhouderForm (final @PathVariable("bronhouderId") long bronhouderId) {
 		final Bronhouder bronhouder = managerDao.getBronhouder (bronhouderId);
@@ -55,5 +90,15 @@ public final class BronhouderController {
 		}
 		
 		return "/ba/gebruikersbeheer/delete-bronhouder";
+	}
+
+	/**
+	 * Processes a POST of the bronhouder delete form.
+	 * 
+	 * @param bronhouderId
+	 */
+	@RequestMapping (value = "/{bronhouderId}/delete", method = RequestMethod.POST)
+	public String processDeleteBronhouderForm (final @PathVariable("bronhouderId") long bronhouderId) {
+		return "redirect:/ba/gebruikersbeheer/bronhouders";
 	}
 }
