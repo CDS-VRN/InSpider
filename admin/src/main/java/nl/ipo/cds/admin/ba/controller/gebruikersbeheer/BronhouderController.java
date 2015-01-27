@@ -3,6 +3,7 @@ package nl.ipo.cds.admin.ba.controller.gebruikersbeheer;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 
 import nl.ipo.cds.admin.ba.controller.gebruikersbeheer.beans.BronhouderForm;
 import nl.ipo.cds.dao.ManagerDao;
@@ -10,6 +11,7 @@ import nl.ipo.cds.domain.Bronhouder;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -49,9 +51,16 @@ public final class BronhouderController {
 	 * Processes a POST of the create bronhouder form. 
 	 */
 	@RequestMapping (value = "/-/create", method = RequestMethod.POST)
-	public String processCreateBronhouderForm () {
-		return "redirect:/ba/gebruikersbeheer/bronhouders";
+	public String processCreateBronhouderForm (
+			final @Valid BronhouderForm bronhouderForm, 
+			final BindingResult bindingResult, 
+			final Model model) {
 		
+		if (bindingResult.hasErrors ()) {
+			return "/ba/gebruikersbeheer/edit-bronhouder";
+		}
+		
+		return "redirect:/ba/gebruikersbeheer/bronhouders";
 	}
 
 	/**

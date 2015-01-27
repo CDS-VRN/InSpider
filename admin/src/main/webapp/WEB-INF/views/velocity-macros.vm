@@ -1,3 +1,13 @@
 #macro(e $txt)
 #if($txt)$esc.html($txt)#end
 #end
+
+#macro(errors $status)
+	#if($status.errorMessages.size() > 0)
+	<ul>
+		#foreach($error in $status.errorMessages)
+		<li>#e($error)</li>
+		#end
+	</ul>
+	#end
+#end

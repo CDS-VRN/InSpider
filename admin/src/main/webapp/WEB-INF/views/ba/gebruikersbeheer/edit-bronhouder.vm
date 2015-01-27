@@ -1,3 +1,4 @@
+
 <form method="POST" action="#springUrl('/ba/gebruikersbeheer/bronhouders/')#if($bronhouderId)$bronhouderId#else-#end/create" data-return-url="#springUrl('/ba/gebruikersbeheer/bronhouders')">
 	<table class="cds-table">
 		<thead>
@@ -12,75 +13,92 @@
 			</tr>
 		</thead>
 		<tbody>
-			#springBind("bronhouderForm.naam")
+			#springBind("bronhouderForm")
+			#if($status.errors.hasErrors())
 			<tr>
+				<td colspan="2">
+					De bronhouder kon niet worden opgeslagen omdat niet alle velden juist zijn ingevuld.
+				</td>
+			</tr>
+			#end
+			#springBind("bronhouderForm.naam")
+			<tr#if($status.isError()) class="error"#end>
 				<td>Bronhoudernaam</td>
 				<td>
 					<input type="text" name="#e(${status.expression})" value="#e($!status.value)" data-dojo-type="dijit/form/TextBox">
+					#errors($status)
 				</td>
 			</tr>
 			
 			#springBind("bronhouderForm.code")
-			<tr>
+			<tr#if($status.isError()) class="error"#end>
 				<td>Bronhoudercode</td>
 				<td>
 					<input type="text" name="#e(${status.expression})" value="#e($!status.value)" data-dojo-type="dijit/form/TextBox">
+					#errors($status)
 				</td>
 			</tr>
 			
 			#springBind("bronhouderForm.commonName")
-			<tr>
+			<tr#if($status.isError()) class="error"#end>
 				<td>Identificatie</td>
 				<td>
 					<input type="text" name="#e(${status.expression})" value="#e($!status.value)" data-dojo-type="dijit/form/TextBox">
+					#errors($status)
 				</td>
 			</tr>
 			
 			#springBind("bronhouderForm.contactNaam")
-			<tr>
+			<tr#if($status.isError()) class="error"#end>
 				<td>Contactpersoon naam</td>
 				<td>
 					<input type="text" name="#e(${status.expression})" value="#e($!status.value)" data-dojo-type="dijit/form/TextBox">
+					#errors($status)
 				</td>
 			</tr>
 			
 			#springBind("bronhouderForm.contactAdres")
-			<tr>
+			<tr#if($status.isError()) class="error"#end>
 				<td>Contactpersoon adres</td>
 				<td>
 					<input type="text" name="#e(${status.expression})" value="#e($!status.value)" data-dojo-type="dijit/form/TextBox">
+					#errors($status)
 				</td>
 			</tr>
 			
 			#springBind("bronhouderForm.contactPostcode")
-			<tr>
+			<tr#if($status.isError()) class="error"#end>
 				<td>Contactpersoon postcode</td>
 				<td>
 					<input type="text" name="#e(${status.expression})" value="#e($!status.value)" data-dojo-type="dijit/form/TextBox">
+					#errors($status)
 				</td>
 			</tr>
 			
 			#springBind("bronhouderForm.contactPlaats")
-			<tr>
+			<tr#if($status.isError()) class="error"#end>
 				<td>Contactpersoon plaats</td>
 				<td>
 					<input type="text" name="#e(${status.expression})" value="#e($!status.value)" data-dojo-type="dijit/form/TextBox">
+					#errors($status)
 				</td>
 			</tr>
 			
 			#springBind("bronhouderForm.contactEmailadres")
-			<tr>
+			<tr#if($status.isError()) class="error"#end>
 				<td>Contactpersoon e-mail</td>
 				<td>
 					<input type="text" name="#e(${status.expression})" value="#e($!status.value)" data-dojo-type="dijit/form/TextBox">
+					#errors($status)
 				</td>
 			</tr>
 			
 			#springBind("bronhouderForm.contactTelefoonnummer")
-			<tr>
+			<tr#if($status.isError()) class="error"#end>
 				<td>Contactpersoon telefoonnummer</td>
 				<td>
 					<input type="text" name="#e(${status.expression})" value="#e($!status.value)" data-dojo-type="dijit/form/TextBox">
+					#errors($status)
 				</td>
 			</tr>
 		</tbody>
