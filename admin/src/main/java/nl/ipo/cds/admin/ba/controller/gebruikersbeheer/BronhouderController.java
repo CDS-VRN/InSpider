@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import nl.ipo.cds.admin.ba.controller.gebruikersbeheer.beans.BronhouderForm;
 import nl.ipo.cds.dao.ManagerDao;
 import nl.ipo.cds.domain.Bronhouder;
 
@@ -39,7 +40,8 @@ public final class BronhouderController {
 	 * Displays the form for creating a new bronhouder.
 	 */
 	@RequestMapping (value = "/-/create", method = RequestMethod.GET)
-	public String createBronhouderForm () {
+	public String createBronhouderForm (final Model model) {
+		model.addAttribute ("bronhouderForm", new BronhouderForm ());
 		return "/ba/gebruikersbeheer/edit-bronhouder";
 	}
 	
@@ -58,11 +60,13 @@ public final class BronhouderController {
 	 * @param bronhouderId	The ID of the bronhouder to edit.
 	 */
 	@RequestMapping (value = "/{bronhouderId}/edit", method = RequestMethod.GET)
-	public String editBronhouderForm (final @PathVariable("bronhouderId") long bronhouderId) {
+	public String editBronhouderForm (final @PathVariable("bronhouderId") long bronhouderId, final Model model) {
 		final Bronhouder bronhouder = managerDao.getBronhouder (bronhouderId);
 		if (bronhouder == null) {
 			return "redirect:/ba/gebruikersbeheer/bronhouders";
 		}
+		
+		model.addAttribute ("bronhouderForm", new BronhouderForm (bronhouder));
 		
 		return "/ba/gebruikersbeheer/edit-bronhouder";
 	}
@@ -83,11 +87,13 @@ public final class BronhouderController {
 	 * @param bronhouderId	The ID of the bronhouder to delete.
 	 */
 	@RequestMapping (value = "/{bronhouderId}/delete", method = RequestMethod.GET)
-	public String deleteBronhouderForm (final @PathVariable("bronhouderId") long bronhouderId) {
+	public String deleteBronhouderForm (final @PathVariable("bronhouderId") long bronhouderId, final Model model) {
 		final Bronhouder bronhouder = managerDao.getBronhouder (bronhouderId);
 		if (bronhouder == null) {
 			return "redirect:/ba/gebruikersbeheer/bronhouders";
 		}
+
+		model.addAttribute ("bronhouder", bronhouder);
 		
 		return "/ba/gebruikersbeheer/delete-bronhouder";
 	}
