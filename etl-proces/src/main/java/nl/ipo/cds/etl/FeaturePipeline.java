@@ -46,8 +46,24 @@ public class FeaturePipeline<InputType extends Feature, OutputType extends Featu
 
 	@Override
 	public void finish () {
+		// Problem scenario:
+		// When an exception is raised in AbstractValidator#afterJob() (which is triggered during this finish() method),
+		// the transaction rollback initiated will deadlock when an ImportFeatureProcessor is at the end of the pipeline.
+		// This is because the postgres lock has not yet been released by this processor.
+		// In order to solve this, we first finish all processors in the pipeline before propagating the exception.
+		// When multiple exceptions are thrown, we only propagate the first, since catching this exception might (in theory) be causing the remaining exceptions.
+		RuntimeException exception = null;
 		for (final FeatureFilter<Feature, Feature> filter: filters) {
-			filter.finish ();
+			try {
+				filter.finish();
+			} catch (RuntimeException e) {
+				if (exception == null) {
+					exception = e;
+				}
+			}
+		}
+		if (exception != null) {
+			throw exception;
 		}
 	}
 }
