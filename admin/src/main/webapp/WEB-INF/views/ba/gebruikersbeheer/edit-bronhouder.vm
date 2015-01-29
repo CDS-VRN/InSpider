@@ -1,5 +1,5 @@
 
-<form method="POST" action="#springUrl('/ba/gebruikersbeheer/bronhouders/')#if($bronhouderId)$bronhouderId#else-#end/create" data-return-url="#springUrl('/ba/gebruikersbeheer/bronhouders')">
+<form method="POST" action="#springUrl('/ba/gebruikersbeheer/bronhouders/')#if($bronhouderId)$bronhouderId/edit#else-/create#end" data-return-url="#springUrl('/ba/gebruikersbeheer/bronhouders')">
 	<table class="cds-table">
 		<thead>
 			<tr>
@@ -15,12 +15,13 @@
 		<tbody>
 			#springBind("bronhouderForm")
 			#if($status.errors.hasErrors())
-			<tr>
+			<tr class="error">
 				<td colspan="2">
 					De bronhouder kon niet worden opgeslagen omdat niet alle velden juist zijn ingevuld.
 				</td>
 			</tr>
 			#end
+			
 			#springBind("bronhouderForm.naam")
 			<tr#if($status.isError()) class="error"#end>
 				<td>Bronhoudernaam</td>

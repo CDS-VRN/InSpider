@@ -1,14 +1,22 @@
 package nl.ipo.cds.admin.ba.controller.gebruikersbeheer.beans;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+
+import org.hibernate.validator.constraints.Email;
 
 import nl.ipo.cds.domain.Bronhouder;
 
+/**
+ * Form bean class for editing "bronhouders". Contains the editable properties of the {@link Bronhouder}
+ * class and adds validation constraints.
+ */
 public class BronhouderForm {
 
 	@NotNull
 	@Size (min = 1)
+	@Pattern (regexp = "[a-z0-9\\-_]+", flags = Pattern.Flag.CASE_INSENSITIVE)
 	private String code = "";
 	
 	@NotNull
@@ -25,18 +33,33 @@ public class BronhouderForm {
 
 	private String contactTelefoonnummer;
 
+	@Email
 	private String contactEmailadres;
 	
 	@NotNull
 	@Size (min = 2)
+	@Pattern (regexp = "[a-z0-9\\-_]+", flags = Pattern.Flag.CASE_INSENSITIVE)
 	private String commonName = "";
-	
+
+	/**
+	 * Creates a new, empty, bronhouder form.
+	 */
 	public BronhouderForm () {
 	}
 	
+	/**
+	 * Creates a new bronhouder form by copying the properties of the given existing bronhouder.
+	 * 
+	 * @param bronhouder The bronhouder whose properties are to be copied.
+	 */
 	public BronhouderForm (final Bronhouder bronhouder) {
+		if (bronhouder == null) {
+			throw new NullPointerException ("bronhouder cannot be null");
+		}
+		
 		setCode (bronhouder.getCode ());
 		setNaam (bronhouder.getNaam ());
+		setCommonName (bronhouder.getCommonName ());
 		setContactNaam (bronhouder.getContactNaam ());
 		setContactAdres (bronhouder.getContactAdres ());
 		setContactPlaats (bronhouder.getContactPlaats ());
