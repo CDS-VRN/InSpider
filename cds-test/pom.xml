@@ -75,6 +75,10 @@
 	</build>
   <dependencies>
   	<dependency>
+		<groupId>junit</groupId>
+		<artifactId>junit</artifactId>
+	</dependency>
+  	<dependency>
   		<groupId>nl.ipo.cds</groupId>
   		<artifactId>managerDB</artifactId>
   		<type>jar</type>
