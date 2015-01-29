@@ -837,6 +837,26 @@ public class ManagerDaoImpl implements ManagerDao {
 		
 		return bronhouders;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Bronhouder getBronhouderByCode (final String code) {
+		if (code == null) {
+			return null;
+		}
+		
+		final List<Bronhouder> bronhouders = entityManager
+				.createQuery("from Bronhouder as bronhouder where bronhouder.code = ?1", Bronhouder.class)
+				.setParameter (1, code)
+				.getResultList ();
+
+		// Code has a unique constraint, therefore there can be at most one bronhouder
+		// in the list.
+		return bronhouders.isEmpty () ? null : bronhouders.get (0);
+	}
+	
 	
 	@Override
 	public Bronhouder getFirstAuthorizedBronhouder (String userName) {

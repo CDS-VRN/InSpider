@@ -216,6 +216,15 @@ public interface ManagerDao {
 	
 	public List<Bronhouder> getBronhoudersByUsername(String username); // R
 
+	/**
+	 * Looks up a bronhouder by (unique) code. Returns the bronhouder with the given code, or
+	 * null if no such bronhouder exists.
+	 *  
+	 * @param code	The bronhouder code. Cannot be null.
+	 * @return		The bronhouder with the given code, or null if no such bronhouder exists.
+	 */
+	Bronhouder getBronhouderByCode (String code);
+
 	public void delete(Bronhouder bronhouder); // D
 	
 	public Geometry getBronhouderGeometry (Bronhouder bronhouder);
