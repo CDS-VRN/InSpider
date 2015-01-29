@@ -10,6 +10,7 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 
+import nl.ipo.cds.categories.IntegrationTests;
 import nl.ipo.cds.dao.impl.ManagerDaoImpl;
 import nl.ipo.cds.domain.Bronhouder;
 import nl.ipo.cds.domain.BronhouderThema;
@@ -23,6 +24,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.ldap.NameAlreadyBoundException;
 import org.springframework.ldap.core.DistinguishedName;
@@ -30,6 +32,7 @@ import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.ldap.test.LdapTestUtils;
 
+@Category(IntegrationTests.class)
 public class GebruikerDaoTest extends BaseManagerDaoTest {
 
 	private static final DistinguishedName BASE_NAME = new DistinguishedName ("dc=inspire,dc=idgis,dc=eu");
