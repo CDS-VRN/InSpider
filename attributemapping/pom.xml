@@ -9,6 +9,10 @@
 	<name>CDS Inspire - Attributemapping</name>
 	<dependencies>
 		<dependency>
+			<groupId>nl.ipo.cds</groupId>
+			<artifactId>commons</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>javax.inject</groupId>
 			<artifactId>javax.inject</artifactId>
 		</dependency>

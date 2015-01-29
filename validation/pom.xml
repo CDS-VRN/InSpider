@@ -9,6 +9,10 @@
   <name>validation</name>
   <description>CDS - Validation</description>
   <dependencies>
+	 <dependency>
+		<groupId>nl.ipo.cds</groupId>
+		<artifactId>commons</artifactId>
+	</dependency>
   	<dependency>
   		<groupId>org.springframework</groupId>
   		<artifactId>spring-beans</artifactId>

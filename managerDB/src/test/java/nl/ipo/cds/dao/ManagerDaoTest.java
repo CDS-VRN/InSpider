@@ -19,6 +19,7 @@ import nl.idgis.commons.jobexecutor.AbstractJob;
 import nl.idgis.commons.jobexecutor.Job;
 import nl.idgis.commons.jobexecutor.JobLogger.LogLevel;
 import nl.idgis.commons.utils.DateTimeUtils;
+import nl.ipo.cds.categories.IntegrationTests;
 import nl.ipo.cds.domain.Bronhouder;
 import nl.ipo.cds.domain.Dataset;
 import nl.ipo.cds.domain.DatasetType;
@@ -33,6 +34,7 @@ import org.deegree.geometry.Geometry;
 import org.deegree.geometry.multi.MultiPolygon;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -42,6 +44,7 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
+@Category(IntegrationTests.class)
 public class ManagerDaoTest extends BaseManagerDaoTest {
     @Autowired
     private DataSource dataSource;
