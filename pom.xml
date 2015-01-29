@@ -92,10 +92,24 @@
 					</execution>
 				</executions>				
 			</plugin>
+			
 		</plugins>
 
 		<pluginManagement>
 			<plugins>
+			<!-- Need surefire-juni47 provider for use of @Category and -Dgroups parameterization of groups -->
+			<plugin>
+					  <groupId>org.apache.maven.plugins</groupId>
+					  <artifactId>maven-surefire-plugin</artifactId>
+					  <version>2.18.1</version><configuration></configuration>
+					  <dependencies>
+					    <dependency>
+					      <groupId>org.apache.maven.surefire</groupId>
+					      <artifactId>surefire-junit47</artifactId>
+					      <version>2.18.1</version>
+					    </dependency>
+					  </dependencies>
+					</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>buildnumber-maven-plugin</artifactId>
@@ -173,6 +187,12 @@
 
 	</build>
 	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		
 	</dependencies>
 
 	<dependencyManagement>
@@ -185,7 +205,6 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-
 			<dependency>
 				<groupId>dom4j</groupId>
 				<artifactId>dom4j</artifactId>

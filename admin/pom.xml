@@ -189,6 +189,12 @@
     </profiles>
 
     <dependencies>
+           <dependency>
+        	<groupId>nl.ipo.cds</groupId>
+        	<artifactId>commons</artifactId>
+        	<type>jar</type>
+        	<scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>

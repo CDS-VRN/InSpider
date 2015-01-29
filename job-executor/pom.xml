@@ -14,5 +14,11 @@
         <module>job-executor-api</module>
         <module>job-executor-exec</module>
     </modules>
+	<dependencies>
+		<dependency>
+			<groupId>nl.ipo.cds</groupId>
+			<artifactId>commons</artifactId>
+		</dependency>
+	</dependencies>
     
 </project>
