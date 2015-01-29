@@ -212,6 +212,12 @@ public abstract class AbstractProcess<T extends EtlJob> implements Process<T>, A
 			job.setResult(message);
 			job.setFeatureCount(0);
 			error = true;
+		} catch (RuntimeException e) {
+			String message = userLog.logEvent(job, AbstractProcess.MessageKey.XML_BLOCKING_FEATURE_ERROR, LogLevel.ERROR);
+			technicalLog.warn(message);
+			job.setResult(message);
+			job.setFeatureCount(0);
+			error = true;
 		} catch (Exception e) {
 			String message = userLog.logEvent(job, AbstractProcess.MessageKey.XML_FEATURES_EXCEPTION, LOG_LEVEL, ExceptionUtils.getRootCauseMessage(e));
 			job.setResult(message);
