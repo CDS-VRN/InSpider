@@ -144,6 +144,11 @@ public class ImportFeatureProcessor extends ValidateFeatureProcessor {
 				technicalLog.debug("dbWriter closed");
 				DataSourceUtils.releaseConnection(connection, dataSource);
 			}
+
+			@Override
+			public boolean postProcess() {
+				return true;
+			}
 		};
 	}
 	

@@ -79,6 +79,11 @@ public class ValidateFeatureProcessor implements FeatureProcessor {
 				@Override
 				public void finish () {
 				}
+
+				@Override
+				public boolean postProcess() {
+					return true;
+				}
 			});
 		}
 		
@@ -149,21 +154,20 @@ public class ValidateFeatureProcessor implements FeatureProcessor {
 				errorStream
 			);
 		
-		try {
-			if (attributeMapper.isValid () && filterer.isValid ()) {
-				attributeMapper.processFeatures (features, attributeMapperStream);
-			} else if (job.isIgnoreInvalidMapping ()) {
-				for (@SuppressWarnings("unused") final GenericFeature feature: features) {
-				}
-			}
-		} finally {
-			pipeline.finish ();
-			
-			if (errorStream.getFeatureCount () > 0) {
-				throw new ValidationException ("Validator encountered errors");
-			}
-		}
-		
+        if (attributeMapper.isValid () && filterer.isValid ()) {
+            attributeMapper.processFeatures (features, attributeMapperStream);
+        }
+
+		// Release resources (database locks etc.).
+        pipeline.finish();
+
+		// Post processing (after job validation etc.).
+        boolean success = pipeline.postProcess();
+
+        if (!success || errorStream.getFeatureCount () > 0) {
+            throw new ValidationException ("Validator encountered errors");
+        }
+
 		return counter.getFeatureCount ();
 	}
 	
