@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import nl.ipo.cds.admin.ba.controller.gebruikersbeheer.beans.BronhouderForm;
 import nl.ipo.cds.dao.ManagerDao;
 import nl.ipo.cds.domain.Bronhouder;
+import nl.ipo.cds.domain.Dataset;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -132,6 +133,8 @@ public final class BronhouderController {
 			return "redirect:/ba/gebruikersbeheer/bronhouders";
 		}
 
+		// Test whether the bronhouder can be deleted:
+		model.addAttribute ("bronhouderDatasets", managerDao.getDatasetsByBronhouder (bronhouder));
 		model.addAttribute ("bronhouder", bronhouder);
 		
 		return "/ba/gebruikersbeheer/delete-bronhouder";
@@ -144,7 +147,22 @@ public final class BronhouderController {
 	 */
 	@RequestMapping (value = "/{bronhouderId}/delete", method = RequestMethod.POST)
 	@Transactional
-	public String processDeleteBronhouderForm (final @PathVariable("bronhouderId") long bronhouderId) {
+	public String processDeleteBronhouderForm (final @PathVariable("bronhouderId") long bronhouderId, final Model model) {
+		final Bronhouder bronhouder = managerDao.getBronhouder (bronhouderId);
+		if (bronhouder == null) {
+			return "redirect:/ba/gebruikersbeheer/bronhouders";
+		}
+		
+		final List<Dataset> bronhouderDatasets = managerDao.getDatasetsByBronhouder (bronhouder);
+		if (!bronhouderDatasets.isEmpty ()) {
+			model.addAttribute ("bronhouderDatasets", bronhouderDatasets);
+			model.addAttribute ("bronhouder", bronhouder);
+			return "/ba/gebruikersbeheer/delete-bronhouder";
+		}
+		
+		// Delete the bronhouder and related jobs:
+		managerDao.delete (bronhouder);
+		
 		return "redirect:/ba/gebruikersbeheer/bronhouders";
 	}
 	

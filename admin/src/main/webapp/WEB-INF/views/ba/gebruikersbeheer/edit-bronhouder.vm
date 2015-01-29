@@ -116,15 +116,4 @@
 	</table>
 </form>
 
-<script type="text/javascript">
-require (['dijit/registry', 'dojo/query', 'dojo/dom-attr', 'cds/ready!'], function (registry, query, domAttr) {
-	var cancelButton = registry.byId ('button-cancel');
-
-	cancelButton.on ('click', function (e) {
-		e.preventDefault ();
-		e.stopPropagation ();
-		
-		window.location.href = domAttr.get (query ('form')[0], 'data-return-url');
-	});
-});
-</script>
+#cancelButtonScript()
