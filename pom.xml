@@ -60,10 +60,9 @@
 	</repositories>
 		
 	<scm>
-    	<connection>scm:git:git@github.com:CDS-INSPIRE/InSpider.git</connection>
-    	<developerConnection>scm:git:git@github.com:CDS-INSPIRE/InSpider.git</developerConnection>
-    	<url>https://github.com/CDS-INSPIRE/InSpider</url>
-    	<tag>cds-parent-2.2</tag>
+    	<connection>scm:git:git@github.com:CDS-VRN/InSpider.git</connection>
+    	<developerConnection>scm:git:git@github.com:CDS-VRN/InSpider.git</developerConnection>
+    	<url>https://github.com/CDS-VRN/InSpider</url>
   	</scm>
 	
 	<!-- properties -->
