@@ -897,11 +897,60 @@ public class ManagerDaoImpl implements ManagerDao {
 		return authorized;
 	}
 
+	/**
+	 * Deletes the given bronhouder, as well as related entities from the following entity types:
+	 * - bronhouder geometry
+	 * - BronhouderTheme
+	 * - Dataset
+	 * - EtlJob
+	 * - GebruikerThemaAutorisatie
+	 * - JobLog
+	 * - Job
+	 */
 	@Transactional
 	@Override
 	public void delete(Bronhouder bronhouder) {
-		Bronhouder bronhouderToDelete = this.entityManager.getReference(Bronhouder.class, bronhouder.getId());
-		this.entityManager.remove(bronhouderToDelete);
+		// Delete joblog:
+		entityManager
+			.createNativeQuery ("delete from manager.joblog where job_id in (select job_id from manager.etljob where bronhouder_id = ?1)")
+			.setParameter (1, bronhouder.getId ())
+			.executeUpdate ();
+		
+		// Delete jobs:
+		entityManager
+			.createNativeQuery ("select id into temporary table delete_job_id_temp from manager.etljob where bronhouder_id = ?1")
+			.setParameter (1, bronhouder.getId ())
+			.executeUpdate ();
+		
+		entityManager
+			.createNativeQuery ("delete from manager.etljob where id in (select id from delete_job_id_temp)")
+			.executeUpdate ();
+		
+		entityManager
+			.createNativeQuery ("delete from manager.job where id in (select id from delete_job_id_temp)")
+			.executeUpdate ();
+		
+		// Delete authorization:
+		entityManager
+			.createNativeQuery ("delete from manager.gebruikerthemaautorisatie where bronhouderthema_bronhouder_id = ?1")
+			.setParameter (1, bronhouder.getId ())
+			.executeUpdate ();
+		
+		// Delete bronhouderthema:
+		entityManager
+			.createNativeQuery ("delete from manager.bronhouderthema where bronhouder_id = ?1")
+			.setParameter (1, bronhouder.getId ())
+			.executeUpdate ();
+		
+		// Delete bronhouder geometry:
+		entityManager
+			.createNativeQuery ("delete from manager.bronhouder_geometry where bronhouder_id = ?1")
+			.setParameter (1, bronhouder.getId ())
+			.executeUpdate ();
+		
+		// Delete the bronhouder itself:
+		final Bronhouder bronhouderToDelete = this.entityManager.getReference (Bronhouder.class, bronhouder.getId ());
+		this.entityManager.remove (bronhouderToDelete);
 	}
 
 	@Override
