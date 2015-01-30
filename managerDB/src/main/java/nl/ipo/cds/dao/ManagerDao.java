@@ -15,6 +15,7 @@ import nl.ipo.cds.domain.DatasetType;
 import nl.ipo.cds.domain.EtlJob;
 import nl.ipo.cds.domain.FilterExpression;
 import nl.ipo.cds.domain.Gebruiker;
+import nl.ipo.cds.domain.GebruikerThemaAutorisatie;
 import nl.ipo.cds.domain.GebruikersRol;
 import nl.ipo.cds.domain.Identity;
 import nl.ipo.cds.domain.JobLog;
@@ -187,6 +188,21 @@ public interface ManagerDao {
 	public void delete(Dataset dataSet); // D
 
 	// BronhouderThema:
+	/**
+	 * Persists a new {@link BronhouderThema} instance to the database.
+	 * 
+	 * @param bronhouderThema The BronhouderThema instance to persist.
+	 */
+	void create (BronhouderThema bronhouderThema);
+	
+	/**
+	 * Deletes an existing {@link BronhouderThema} from the datase. Any
+	 * related instances of {@link GebruikerThemaAutorisatie} are also removed.
+	 * 
+	 * @param bronhouderThema The {@link BronhouderThema} instance to remove from the database.
+	 */
+	void delete (BronhouderThema bronhouderThema);
+	
 	/**
 	 * Returns all bronhouder themas. The list is ordered primarily by bronhouder name, then
 	 * by thema name.

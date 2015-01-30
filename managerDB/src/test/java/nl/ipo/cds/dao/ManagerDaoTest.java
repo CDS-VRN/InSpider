@@ -593,4 +593,28 @@ public class ManagerDaoTest extends BaseManagerDaoTest {
     	assertEquals ("Noord-Holland", bronhouderThemas2.get (0).getBronhouder ().getNaam ());
     	assertEquals ("Overijssel", bronhouderThemas2.get (1).getBronhouder ().getNaam ());
     }
+
+    @Test
+    public void testCreateBronhouderThema () {
+    	final BronhouderThema bt = new BronhouderThema (thema, managerDao.getBronhouderByNaam ("Overijssel"));
+    	
+    	managerDao.create (bt);
+    	
+    	entityManager.flush ();
+    	
+    	assertEquals (5, managerDao.getBronhouderThemas ().size ());
+    }
+    
+    @Test
+    public void testDeleteBronhouderThema () {
+    	entityManager.flush ();
+    	
+    	final BronhouderThema bt = managerDao.getBronhouderThemas ().get (0);
+    	
+    	managerDao.delete (bt);
+    	
+    	entityManager.flush ();
+    	
+    	assertEquals (3, managerDao.getBronhouderThemas ().size ());
+    }
 }

@@ -47,6 +47,7 @@ import nl.ipo.cds.domain.DbGebruiker;
 import nl.ipo.cds.domain.EtlJob;
 import nl.ipo.cds.domain.FilterExpression;
 import nl.ipo.cds.domain.Gebruiker;
+import nl.ipo.cds.domain.GebruikerThemaAutorisatie;
 import nl.ipo.cds.domain.GebruikersRol;
 import nl.ipo.cds.domain.Identity;
 import nl.ipo.cds.domain.JobLog;
@@ -1834,4 +1835,41 @@ public class ManagerDaoImpl implements ManagerDao {
 			.setParameter (1, thema)
 			.getResultList ();
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void create (final BronhouderThema bronhouderThema) {
+		entityManager.persist (bronhouderThema);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void delete (final BronhouderThema bronhouderThema) {
+		// Delete related GebruikerThemaAutorisatie:
+		final List<GebruikerThemaAutorisatie> gebruikerAuth = new ArrayList<GebruikerThemaAutorisatie> (
+					entityManager
+						.createQuery ("from GebruikerThemaAutorisatie gta where gta.bronhouderThema = ?1", GebruikerThemaAutorisatie.class)
+						.setParameter (1, bronhouderThema)
+						.getResultList()
+				);
+		
+		for (final GebruikerThemaAutorisatie gat: gebruikerAuth) {
+			entityManager.remove (gat);
+		}
+
+		// Delete the BronhouderThema:
+		final BronhouderThema bronhouderThemaToDelete = entityManager
+				.createQuery ("from BronhouderThema bt where bt.bronhouder = ?1 and bt.thema = ?2", BronhouderThema.class)
+				.setParameter (1, bronhouderThema.getBronhouder ())
+				.setParameter (2, bronhouderThema.getThema ())
+				.getSingleResult ();
+		
+		entityManager.remove (bronhouderThemaToDelete);
+	}
+	
 }
