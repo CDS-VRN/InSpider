@@ -7,6 +7,7 @@ import nl.idgis.commons.jobexecutor.Job;
 import nl.idgis.commons.jobexecutor.JobLogger.LogLevel;
 import nl.ipo.cds.domain.AttributeMapping;
 import nl.ipo.cds.domain.Bronhouder;
+import nl.ipo.cds.domain.BronhouderThema;
 import nl.ipo.cds.domain.CodeListMapping;
 import nl.ipo.cds.domain.Dataset;
 import nl.ipo.cds.domain.DatasetFilter;
@@ -185,6 +186,31 @@ public interface ManagerDao {
 
 	public void delete(Dataset dataSet); // D
 
+	// BronhouderThema:
+	/**
+	 * Returns all bronhouder themas. The list is ordered primarily by bronhouder name, then
+	 * by thema name.
+	 * 
+	 * @return A list of all BronhouderThema instances, ordered by bronhouder then by thema.
+	 */
+	List<BronhouderThema> getBronhouderThemas ();
+	
+	/**
+	 * Returns all bronhouder themas associated with the given bronhouder.
+	 * 
+	 * @param bronhouder	The bronhouder to which the BronhouderThema instances must belong.
+	 * @return				All BronhouderThema instances for the given bronhouder, ordered by theme name.
+	 */
+	List<BronhouderThema> getBronhouderThemas (Bronhouder bronhouder);
+	
+	/**
+	 * Returns all bronhouder themas associated with the given theme.
+	 * 
+	 * @param thema			The theme to which the BronhouderThema instances must belong.
+	 * @return				All BronhouderThema instances for the given bronhouder, ordered by bronhouder name.
+	 */
+	List<BronhouderThema> getBronhouderThemas (Thema thema);
+	
 	// -------------
 	// Stam tabellen
 	// -------------

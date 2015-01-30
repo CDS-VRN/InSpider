@@ -38,6 +38,7 @@ import nl.ipo.cds.dao.SortOrder;
 import nl.ipo.cds.dao.impl.ldap.GebruikerAttributesMapper;
 import nl.ipo.cds.domain.AttributeMapping;
 import nl.ipo.cds.domain.Bronhouder;
+import nl.ipo.cds.domain.BronhouderThema;
 import nl.ipo.cds.domain.CodeListMapping;
 import nl.ipo.cds.domain.Dataset;
 import nl.ipo.cds.domain.DatasetFilter;
@@ -1802,4 +1803,35 @@ public class ManagerDaoImpl implements ManagerDao {
 		entityManager.remove(metatataDocument);		
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<BronhouderThema> getBronhouderThemas () {
+		return entityManager
+			.createQuery ("from BronhouderThema b order by b.bronhouder.naam asc, b.thema.naam asc", BronhouderThema.class)
+			.getResultList ();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<BronhouderThema> getBronhouderThemas (final Bronhouder bronhouder) {
+		return entityManager
+			.createQuery ("from BronhouderThema b where b.bronhouder = ?1 order by b.thema.naam asc", BronhouderThema.class)
+			.setParameter (1, bronhouder)
+			.getResultList ();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<BronhouderThema> getBronhouderThemas (final Thema thema) {
+		return entityManager
+			.createQuery ("from BronhouderThema b where b.thema = ?1 order by b.bronhouder.naam asc", BronhouderThema.class)
+			.setParameter (1, thema)
+			.getResultList ();
+	}
 }
