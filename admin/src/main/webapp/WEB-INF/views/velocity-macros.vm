@@ -1,3 +1,28 @@
 #macro(e $txt)
 #if($txt)$esc.html($txt)#end
 #end
+
+#macro(errors $status)
+	#if($status.errorMessages.size() > 0)
+	<ul>
+		#foreach($error in $status.errorMessages)
+		<li>#e($error)</li>
+		#end
+	</ul>
+	#end
+#end
+
+#macro(cancelButtonScript)
+	<script type="text/javascript">
+	require (['dijit/registry', 'dojo/query', 'dojo/dom-attr', 'cds/ready!'], function (registry, query, domAttr) {
+		var cancelButton = registry.byId ('button-cancel');
+	
+		cancelButton.on ('click', function (e) {
+			e.preventDefault ();
+			e.stopPropagation ();
+			
+			window.location.href = domAttr.get (query ('form')[0], 'data-return-url');
+		});
+	});
+	</script>	
+#end
