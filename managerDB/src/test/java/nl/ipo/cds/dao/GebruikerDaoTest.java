@@ -388,8 +388,9 @@ public class GebruikerDaoTest extends BaseManagerDaoTest {
 		final List<Thema> themas = managerDao.getAllThemas (bronhouder);
 		
 		assertNotNull (themas);
-		assertEquals (1, themas.size ());
+		assertEquals (2, themas.size ());
 		assertEquals ("Protected sites", themas.get (0).getNaam ());
+		assertEquals ("Thema 2", themas.get (1).getNaam ());
 	}
 	
 	public @Test void testGetBronhoudersByUsername () throws Throwable {
