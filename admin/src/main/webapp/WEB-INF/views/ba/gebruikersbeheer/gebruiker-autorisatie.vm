@@ -8,12 +8,15 @@
 		<li class="dijitTab">
 			<a class="tabLabel" href="#springUrl('/ba/gebruikersbeheer/bronhouders')">Bronhouders</a>
 		</li>
+		<li class="dijitTab">
+			<a class="tabLabel" href="#springUrl('/ba/gebruikersbeheer/autorisatie/bronhouders')">Bronhouder thema autorisatie</a>
+		</li>
 		<li class="dijitTab dijitTabChecked dijitChecked">
-			<a class="tabLabel" href="#springUrl('/ba/gebruikersbeheer/autorisatie')">Thema autorisatie</a>
+			<a class="tabLabel" href="#springUrl('/ba/gebruikersbeheer/autorisatie/gebruikers')">Gebruiker thema autorisatie</a>
 		</li>
 	</ul>
 	
 	<div class="cds-tab-content">
-	
+
 	</div>
 </div>
