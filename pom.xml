@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>nl.ipo.cds</groupId>
 	<artifactId>cds-parent</artifactId>
-	<version>2.3-SNAPSHOT</version>
+	<version>2.2-vrn-0.1</version>
 	<packaging>pom</packaging>
 
 	<properties>
@@ -63,7 +63,8 @@
     	<connection>scm:git:git@github.com:CDS-VRN/InSpider.git</connection>
     	<developerConnection>scm:git:git@github.com:CDS-VRN/InSpider.git</developerConnection>
     	<url>https://github.com/CDS-VRN/InSpider</url>
-  	</scm>
+  	  <tag>cds-parent-2.2-vrn-0.1</tag>
+  </scm>
 	
 	<!-- properties -->
 	<build>
@@ -100,7 +101,7 @@
 			<plugin>
 					  <groupId>org.apache.maven.plugins</groupId>
 					  <artifactId>maven-surefire-plugin</artifactId>
-					  <version>2.18.1</version><configuration></configuration>
+					  <version>2.18.1</version><configuration />
 					  <dependencies>
 					    <dependency>
 					      <groupId>org.apache.maven.surefire</groupId>
@@ -275,7 +276,7 @@
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>postgresql</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
@@ -286,7 +287,7 @@
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>admin</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<type>war</type>
 				<scope>compile</scope>
 			</dependency>
@@ -300,14 +301,14 @@
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>cds-test</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<type>jar</type>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>commons</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<type>jar</type>
 				<scope>compile</scope>
 			</dependency>
@@ -321,48 +322,48 @@
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>domain</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<type>jar</type>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>mappings</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<type>jar</type>
 			</dependency>
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>catalog-metadata</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<type>jar</type>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>domain-metadata</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<type>jar</type>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>etl-proces</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<type>jar</type>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>etl-reporting</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<type>jar</type>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>etl-reporting</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<classifier>tests</classifier>
 				<type>jar</type>
 				<scope>test</scope>
@@ -370,21 +371,21 @@
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>managerDB</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<type>jar</type>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>metadataDB</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<type>jar</type>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>resources</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<type>jar</type>
 				<scope>compile</scope>
 			</dependency>
@@ -398,7 +399,7 @@
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>managerDB</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<type>zip</type>
 				<classifier>sql</classifier>
 				<scope>compile</scope>
@@ -406,21 +407,21 @@
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>resources</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<classifier>tst</classifier>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>resources</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<classifier>prod</classifier>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>etl-proces</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<type>jar</type>
 				<classifier>manager</classifier>
 				<scope>compile</scope>
@@ -428,7 +429,7 @@
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>job-executor</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<type>jar</type>
 				<classifier>manager</classifier>
 				<scope>compile</scope>
@@ -436,7 +437,7 @@
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>etl-proces</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<type>zip</type>
 				<classifier>sql</classifier>
 				<scope>compile</scope>
@@ -452,7 +453,7 @@
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>resources</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<type>jar</type>
 				<classifier>tests</classifier>
 				<scope>compile</scope>
@@ -460,28 +461,28 @@
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>nagios-status</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<type>jar</type>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>validation</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<type>jar</type>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>etl-test</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<type>jar</type>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>nl.ipo.cds</groupId>
 				<artifactId>post-validation</artifactId>
-				<version>2.3-SNAPSHOT</version>
+				<version>2.2-vrn-0.1</version>
 				<type>jar</type>
 				<scope>compile</scope>
 			</dependency>
