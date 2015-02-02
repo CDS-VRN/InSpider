@@ -38,9 +38,6 @@
 
 	<bean id="jpaDialect" class="org.springframework.orm.jpa.vendor.HibernateJpaDialect"/>
 	
-	<bean class="org.springframework.jdbc.core.JdbcTemplate" >
-		<property name="dataSource" ref="dataSource"/>
-	</bean>
 
 	<!--
 		The JpaTransactionManager is responsible for creating EntityManagers
