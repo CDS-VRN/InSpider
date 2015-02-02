@@ -25,13 +25,7 @@ import nl.ipo.cds.attributemapping.operations.discover.OperationDiscoverer;
 import nl.ipo.cds.dao.ManagerDao;
 import nl.ipo.cds.dao.attributemapping.AttributeMappingDao;
 import nl.ipo.cds.dao.attributemapping.OperationDTO;
-import nl.ipo.cds.domain.Bronhouder;
-import nl.ipo.cds.domain.Dataset;
-import nl.ipo.cds.domain.DatasetType;
-import nl.ipo.cds.domain.FeatureType;
-import nl.ipo.cds.domain.RemoveJob;
-import nl.ipo.cds.domain.Thema;
-import nl.ipo.cds.domain.TransformJob;
+import nl.ipo.cds.domain.*;
 import nl.ipo.cds.etl.process.HarvesterException;
 import nl.ipo.cds.etl.theme.AttributeDescriptor;
 import nl.ipo.cds.etl.theme.ThemeConfig;
@@ -251,7 +245,7 @@ public class DatasetController{
 		redirectAttributes.addAttribute ("thema", themaNaam);
 		return "redirect:/ba/datasetconfig/" + bronhouder.getId();
 	}
-	
+
 	@RequestMapping(value ="/ba/add_datasetconfig/{bronhouderId}", method = RequestMethod.GET)
 	public String addDatasetForm(@ModelAttribute Bronhouder bronhouder,
 			@RequestParam(value="thema", required=true) String themaName,

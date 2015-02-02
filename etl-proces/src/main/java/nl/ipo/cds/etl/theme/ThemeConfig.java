@@ -130,4 +130,11 @@ public abstract class ThemeConfig<T extends PersistableFeature> implements Datas
 		return null;
 	}
 
+	/**
+	 * Whether or not the features in this theme are taggable.
+	 */
+	public boolean isTaggable() {
+		return false;
+	}
+
 }
