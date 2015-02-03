@@ -57,6 +57,7 @@ import nl.ipo.cds.domain.MappingOperation;
 import nl.ipo.cds.domain.MetadataDocument;
 import nl.ipo.cds.domain.Rol;
 import nl.ipo.cds.domain.Thema;
+import nl.ipo.cds.domain.TypeGebruik;
 import nl.ipo.cds.utils.DateTimeUtils;
 
 import org.deegree.geometry.Geometry;
@@ -1871,5 +1872,105 @@ public class ManagerDaoImpl implements ManagerDao {
 		
 		entityManager.remove (bronhouderThemaToDelete);
 	}
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public GebruikerThemaAutorisatie createGebruikerThemaAutorisatie (final Gebruiker gebruiker, final BronhouderThema bronhouderThema, final TypeGebruik typeGebruik) {
+		if (gebruiker == null) {
+			throw new NullPointerException ("gebruiker cannot be null");
+		}
+		if (bronhouderThema == null) {
+			throw new NullPointerException ("bronhouderThema cannot be null");
+		}
+		if (typeGebruik == null) {
+			throw new NullPointerException ("typeGebruik cannot be null");
+		}
+		
+		// Make sure the user has a database backing:
+		update (gebruiker);
+		
+		// Create a new GebruikerThemaAutorisatie:
+		final GebruikerThemaAutorisatie gta = new GebruikerThemaAutorisatie (gebruiker.getDbGebruiker (), bronhouderThema, typeGebruik);
+		
+		entityManager.persist (gta);
+		
+		return gta;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void delete (final GebruikerThemaAutorisatie gebruikerThemaAutorisatie) {
+		if (gebruikerThemaAutorisatie == null) {
+			throw new NullPointerException ("gebruikerThemaAutorisatie cannot be null");
+		}
+		
+		final GebruikerThemaAutorisatie instanceToDelete = entityManager
+			.createQuery ("from GebruikerThemaAutorisatie gta where gta.gebruiker = ?1 and gta.bronhouderThema = ?2", GebruikerThemaAutorisatie.class)
+			.setParameter (1, gebruikerThemaAutorisatie.getGebruiker ())
+			.setParameter (2, gebruikerThemaAutorisatie.getBronhouderThema ())
+			.getSingleResult ();
+		
+		entityManager.remove (instanceToDelete);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<GebruikerThemaAutorisatie> getGebruikerThemaAutorisatie () {
+		return entityManager
+			.createQuery ("from GebruikerThemaAutorisatie gta order by gta.gebruiker.gebruikersnaam asc, gta.bronhouderThema.thema.naam asc, gta.bronhouderThema.bronhouder.naam asc", GebruikerThemaAutorisatie.class)
+			.getResultList ();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<GebruikerThemaAutorisatie> getGebruikerThemaAutorisatie (final Gebruiker gebruiker) {
+		if (gebruiker == null) {
+			throw new NullPointerException ("gebruiker cannot be null");
+		}
+		
+		return entityManager
+			.createQuery ("from GebruikerThemaAutorisatie gta where gta.gebruiker = ?1 order by gta.gebruiker.gebruikersnaam asc, gta.bronhouderThema.thema.naam asc, gta.bronhouderThema.bronhouder.naam asc", GebruikerThemaAutorisatie.class)
+			.setParameter (1, gebruiker.getDbGebruiker ())
+			.getResultList ();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<GebruikerThemaAutorisatie> getGebruikerThemaAutorisatie (final Bronhouder bronhouder) {
+		if (bronhouder == null) {
+			throw new NullPointerException ("bronhouder cannot be null");
+		}
+		
+		return entityManager
+				.createQuery ("from GebruikerThemaAutorisatie gta where gta.bronhouderThema.bronhouder = ?1 order by gta.gebruiker.gebruikersnaam asc, gta.bronhouderThema.thema.naam asc, gta.bronhouderThema.bronhouder.naam asc", GebruikerThemaAutorisatie.class)
+				.setParameter (1, bronhouder)
+				.getResultList ();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<GebruikerThemaAutorisatie> getGebruikerThemaAutorisatie(final Thema thema) {
+		if (thema == null) {
+			throw new NullPointerException ("thema cannot be null");
+		}
+		
+		return entityManager
+				.createQuery ("from GebruikerThemaAutorisatie gta where gta.bronhouderThema.thema = ?1 order by gta.gebruiker.gebruikersnaam asc, gta.bronhouderThema.thema.naam asc, gta.bronhouderThema.bronhouder.naam asc", GebruikerThemaAutorisatie.class)
+				.setParameter (1, thema)
+				.getResultList ();
+	}
 }

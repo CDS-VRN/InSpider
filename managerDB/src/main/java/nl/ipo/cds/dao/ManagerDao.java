@@ -24,6 +24,7 @@ import nl.ipo.cds.domain.MappingOperation;
 import nl.ipo.cds.domain.MetadataDocument;
 import nl.ipo.cds.domain.Rol;
 import nl.ipo.cds.domain.Thema;
+import nl.ipo.cds.domain.TypeGebruik;
 
 import org.deegree.geometry.Geometry;
 
@@ -226,6 +227,55 @@ public interface ManagerDao {
 	 * @return				All BronhouderThema instances for the given bronhouder, ordered by bronhouder name.
 	 */
 	List<BronhouderThema> getBronhouderThemas (Thema thema);
+	
+	/**
+	 * Creates a new {@link GebruikerThemaAutorisatie} and stores it to the database.
+	 * 
+	 * @param gebruiker The user for which the authorization is stored. Cannot be null.
+	 * @param bronhouderThema The {@link BronhouderThema} instance which describes the link between a bronhouder and a theme. Cannot be null.
+	 * @param typeGebruik The role to assign to the user. Cannot be null.
+	 * @return The newly created {@link GebruikerThemaAutorisatie} object.
+	 */
+	GebruikerThemaAutorisatie createGebruikerThemaAutorisatie (Gebruiker gebruiker, BronhouderThema bronhouderThema, TypeGebruik typeGebruik);
+	
+	/**
+	 * Removes an existing {@link GebruikerThemaAutorisatie} from the database.
+	 * 
+	 * @param gebruikerThemaAutorisatie The authorization object to remove. Cannot be null.
+	 */
+	void delete (GebruikerThemaAutorisatie gebruikerThemaAutorisatie);
+
+	/**
+	 * Lists all {@link GebruikerThemaAutorisatie}, ordered by user, then by
+	 * theme and then by bronhouder.
+	 * 
+	 * @return A list of {@link GebruikerThemaAutorisatie}, ordered by user, then by theme and then by bronhouder.
+	 */
+	List<GebruikerThemaAutorisatie> getGebruikerThemaAutorisatie ();
+	
+	/**
+	 * Lists all {@link GebruikerThemaAutorisatie} for the given user. Ordered by theme, then by bronhouder.
+	 * 
+	 * @param gebruiker The use whose {@link GebruikerThemaAutorisatie}'s are listed. Cannot be null.
+	 * @return	A list of {@link GebruikerThemaAutorisatie}, ordered by theme and then by bronhouder.
+	 */
+	List<GebruikerThemaAutorisatie> getGebruikerThemaAutorisatie (Gebruiker gebruiker);
+	
+	/**
+	 * Lists all {@link GebruikerThemaAutorisatie} for the given bronhouder. Ordered by user, then by theme.
+	 * 
+	 * @param bronhouder The bronhouder whose {@link GebruikerThemaAutorisatie}'s are listed. Cannnot be null.
+	 * @return A list of {@link GebruikerThemaAutorisatie}, ordered by user, then by theme.
+	 */
+	List<GebruikerThemaAutorisatie> getGebruikerThemaAutorisatie (Bronhouder bronhouder);
+	
+	/**
+	 * Lists all {@link GebruikerThemaAutorisatie} for the given theme. Ordered by user, then by bronhouder.
+	 * 
+	 * @param thema The theme whose {@link GebruikerThemaAutorisatie}'s are listed. Cannot be null.
+	 * @return A list of {@link GebruikerThemaAutorisatie}, ordered by user, then by bronhouder.
+	 */
+	List<GebruikerThemaAutorisatie> getGebruikerThemaAutorisatie (Thema thema);
 	
 	// -------------
 	// Stam tabellen

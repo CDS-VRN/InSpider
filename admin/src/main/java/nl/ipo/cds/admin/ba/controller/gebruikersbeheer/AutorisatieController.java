@@ -13,9 +13,12 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 
 import nl.ipo.cds.admin.ba.controller.gebruikersbeheer.beans.BronhouderThemas;
+import nl.ipo.cds.admin.ba.controller.gebruikersbeheer.beans.GebruikerThemas;
 import nl.ipo.cds.dao.ManagerDao;
 import nl.ipo.cds.domain.Bronhouder;
 import nl.ipo.cds.domain.BronhouderThema;
+import nl.ipo.cds.domain.Gebruiker;
+import nl.ipo.cds.domain.GebruikerThemaAutorisatie;
 import nl.ipo.cds.domain.Thema;
 
 import org.springframework.stereotype.Controller;
@@ -121,6 +124,7 @@ public class AutorisatieController {
 	 */
 	@RequestMapping (value = "gebruikers", method = RequestMethod.GET)
 	public String showGebruikerThemaAutorisatie (final Model model) {
+		
 		return "/ba/gebruikersbeheer/gebruiker-autorisatie";
 	}
 
@@ -143,6 +147,20 @@ public class AutorisatieController {
 	@Transactional
 	public String processGebruikerThemaAutorisatieForm (final @PathVariable("commonName") String commonName, final Model model) {
 		return "redirect:/ba/gebruikersbeheer/autorisatie/gebruikers";
+	}
+	
+	/**
+	 * Combines the list of all users with all {@link GebruikerThemaAutorisatie} associations.
+	 * 
+	 * @return A list of {@link GebruikerThemas} instances each containing a user and associated
+	 * 			{@link GebruikerThemaAutorisatie}'s.
+	 */
+	private List<GebruikerThemas> getGebruikerThemas () {
+		final List<Gebruiker> gebruikers = managerDao.getAllGebruikers ();
+		//managerDao.getGe
+		
+		return null;
+		
 	}
 	
 	/**
@@ -184,7 +202,6 @@ public class AutorisatieController {
 		@Valid
 		private Map<Long, Boolean> ids = new HashMap<Long, Boolean> ();
 
-		@SuppressWarnings("unused")
 		public Map<Long, Boolean> getIds () {
 			return ids;
 		}

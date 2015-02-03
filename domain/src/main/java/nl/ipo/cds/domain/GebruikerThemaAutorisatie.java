@@ -29,6 +29,9 @@ public final class GebruikerThemaAutorisatie implements Serializable {
 	@NotNull
 	private TypeGebruik typeGebruik;
 	
+	GebruikerThemaAutorisatie () {
+	}
+	
 	/**
 	 * Constructs a new authorization by providing the user, the bronhouder and theme.
 	 * 

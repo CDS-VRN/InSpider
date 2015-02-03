@@ -25,6 +25,7 @@ import nl.ipo.cds.domain.BronhouderThema;
 import nl.ipo.cds.domain.Dataset;
 import nl.ipo.cds.domain.DatasetType;
 import nl.ipo.cds.domain.EtlJob;
+import nl.ipo.cds.domain.GebruikerThemaAutorisatie;
 import nl.ipo.cds.domain.ImportJob;
 import nl.ipo.cds.domain.JobLog;
 import nl.ipo.cds.domain.Thema;
