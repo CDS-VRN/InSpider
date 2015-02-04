@@ -125,6 +125,8 @@ public class AutorisatieController {
 	@RequestMapping (value = "gebruikers", method = RequestMethod.GET)
 	public String showGebruikerThemaAutorisatie (final Model model) {
 		
+		model.addAttribute ("gebruikerThemas", getGebruikerThemas ());
+		
 		return "/ba/gebruikersbeheer/gebruiker-autorisatie";
 	}
 
@@ -156,11 +158,38 @@ public class AutorisatieController {
 	 * 			{@link GebruikerThemaAutorisatie}'s.
 	 */
 	private List<GebruikerThemas> getGebruikerThemas () {
-		final List<Gebruiker> gebruikers = managerDao.getAllGebruikers ();
-		//managerDao.getGe
+		final List<Gebruiker> gebruikers = new ArrayList<Gebruiker> (managerDao.getAllGebruikers ());
+		final List<GebruikerThemaAutorisatie> gtas = new ArrayList<GebruikerThemaAutorisatie> (managerDao.getGebruikerThemaAutorisatie ());
+
+		// Sort both lists on gebruikersnaam:
+		Collections.sort (gebruikers, new Comparator<Gebruiker> () {
+			@Override
+			public int compare (final Gebruiker o1, final Gebruiker o2) {
+				return o1.getGebruikersnaam ().compareTo (o2.getGebruikersnaam ());
+			}
+		});
+		Collections.sort (gtas, new Comparator<GebruikerThemaAutorisatie> () {
+			@Override
+			public int compare (final GebruikerThemaAutorisatie o1, final GebruikerThemaAutorisatie o2) {
+				return o1.getGebruiker ().getGebruikersnaam ().compareTo (o2.getGebruiker ().getGebruikersnaam ());
+			}
+		});
+
+		// Merge the two lists:
+		int i = 0;
+		final List<GebruikerThemas> result = new ArrayList<GebruikerThemas> ();
+		for (final Gebruiker gebruiker: gebruikers) {
+			final List<GebruikerThemaAutorisatie> gebruikerGtas = new ArrayList<GebruikerThemaAutorisatie> ();
+			
+			while (i < gtas.size () && gebruiker.getGebruikersnaam ().equals (gtas.get (i).getGebruiker ().getGebruikersnaam ())) {
+				gebruikerGtas.add (gtas.get (i));
+				++ i;
+			}
+			
+			result.add (new GebruikerThemas (gebruiker, gebruikerGtas));
+		}
 		
-		return null;
-		
+		return Collections.unmodifiableList (result);
 	}
 	
 	/**
