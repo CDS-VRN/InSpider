@@ -9,11 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -48,14 +44,12 @@ import nl.ipo.cds.domain.EtlJob;
 import nl.ipo.cds.domain.FilterExpression;
 import nl.ipo.cds.domain.Gebruiker;
 import nl.ipo.cds.domain.GebruikerThemaAutorisatie;
-import nl.ipo.cds.domain.GebruikersRol;
 import nl.ipo.cds.domain.Identity;
 import nl.ipo.cds.domain.JobLog;
 import nl.ipo.cds.domain.JobType;
 import nl.ipo.cds.domain.LdapGebruiker;
 import nl.ipo.cds.domain.MappingOperation;
 import nl.ipo.cds.domain.MetadataDocument;
-import nl.ipo.cds.domain.Rol;
 import nl.ipo.cds.domain.Thema;
 import nl.ipo.cds.domain.TypeGebruik;
 import nl.ipo.cds.utils.DateTimeUtils;
@@ -1484,147 +1478,6 @@ public class ManagerDaoImpl implements ManagerDao {
 	// -----------------------
 	// -- Gebruikersrollen: --
 	// -----------------------
-	private String getBronhouderCn (Bronhouder bronhouder) {
-		return bronhouder.getCommonName ();
-	}
-	
-	/**
-	 * Creates a new relation between a user, a role and a 'bronhouder'. If the role is 'BEHEERDER', the bronhouder argument
-	 * must be null. Otherwise, if the role is 'BRONHOUDER', the bronhouder argument must be set to a bronhouder instance.
-	 * The relation can only be added if it doesn't currently exist.
-	 * 
-	 * @param gebruiker
-	 * @param rol
-	 * @param bronhouder
-	 * @return A new GebruikersRol instance representing the relation.
-	 */
-	@Override
-	public GebruikersRol createGebruikersRol (final Gebruiker gebruiker, final Rol rol, final Bronhouder bronhouder) {
-		// Validate input:
-		if (gebruiker == null) {
-			throw new IllegalArgumentException ("gebruiker cannot be null");
-		}
-		if (rol == null) {
-			throw new IllegalArgumentException ("rol cannot be null");
-		}
-		if (rol == Rol.BRONHOUDER && bronhouder == null) {
-			throw new IllegalArgumentException ("bronhouder cannot be null when rol is 'BRONHOUDER'");
-		}
-		if (rol == Rol.BEHEERDER && bronhouder != null) {
-			throw new IllegalArgumentException ("bronhouder must be null when rol is 'BEHEERDER'");
-		}
-		
-		// Determine the 'cn' of the group to add the user to:
-		final String groupCn;
-		if (rol == Rol.BEHEERDER) {
-			groupCn = "beheerder";
-		} else {
-			groupCn = getBronhouderCn (bronhouder);
-			if (groupCn == null) {
-				throw new IllegalArgumentException (String.format ("Bronhouder `%s` is invalid", bronhouder.getCommonName ()));
-			}
-		}
-
-		// Test if the user exists:
-		if (getGebruiker (gebruiker.getGebruikersnaam ()) == null) {
-			throw new IllegalArgumentException ("gebruiker does not exist");
-		}
-		
-		// Construct DN's for the group and user:
-		final DistinguishedName groupDn = new DistinguishedName (getLdapSearchBaseGroup ());
-		final DistinguishedName userDn = new DistinguishedName (getLdapSearchBasePeople () + "," + getLdapBase ());
-		
-		groupDn.add ("cn", groupCn);
-		userDn.add ("uid", gebruiker.getGebruikersnaam ());
-		
-		// Update the group by adding a value to the 'member' attribute:
-		final Attribute attribute = new BasicAttribute ("member", userDn.toString ());
-		final ModificationItem modificationItem = new ModificationItem (DirContext.ADD_ATTRIBUTE, attribute);
-		
-		ldapTemplate.modifyAttributes (groupDn, new ModificationItem[] { modificationItem });
-		
-		// Return a GebruikersRol domain object that reflects the relation: 
-		return new GebruikersRolImpl (gebruiker, rol, bronhouder);
-	}
-	
-	/**
-	 * Deletes the given user role. The role can only be removed if it currently exists (e.g. it can't be deleted twice).
-	 * 
-	 * @param gebruikersRol The role to delete.
-	 */
-	@Override
-	public void delete(GebruikersRol gebruikersRol) {
-		final Gebruiker gebruiker = gebruikersRol.getGebruiker ();
-		final Rol rol = gebruikersRol.getRol ();
-		final Bronhouder bronhouder = gebruikersRol.getBronhouder ();
-		final String groupCn;
-
-		// Determine group CN:
-		if (rol == Rol.BEHEERDER) {
-			groupCn = "beheerder";
-		} else {
-			groupCn = getBronhouderCn (bronhouder);
-			if (groupCn == null) {
-				throw new IllegalArgumentException (String.format ("Bronhouder `%s` is invalid", bronhouder.getCommonName ()));
-			}
-		}
-		
-		// Construct DN's for the group and user:
-		final DistinguishedName groupDn = new DistinguishedName (getLdapSearchBaseGroup ());
-		final DistinguishedName userDn = new DistinguishedName (getLdapSearchBasePeople () + "," + getLdapBase ());
-		
-		groupDn.add ("cn", groupCn);
-		userDn.add ("uid", gebruiker.getGebruikersnaam ());
-		
-		// Update the group by removing a value from the 'member' attribute:
-		final Attribute attribute = new BasicAttribute ("member", userDn.toString ());
-		final ModificationItem modificationItem = new ModificationItem (DirContext.REMOVE_ATTRIBUTE, attribute);
-		
-		ldapTemplate.modifyAttributes (groupDn, new ModificationItem[] { modificationItem });
-	}
-	
-	/**
-	 * Returns all roles for the given user. If the user has no roles, an empty array is returned.
-	 * 
-	 * @param gebruiker
-	 * @return A list containing all roles for this user.
-	 */
-	@Override
-	public List<GebruikersRol> getGebruikersRollenByGebruiker(final Gebruiker gebruiker) {
-		final String uid = gebruiker.getGebruikersnaam ();
-		final List<GebruikersRol> result = new ArrayList<GebruikersRol> ();
-		final List<?> searchResult = ldapTemplate.search (
-				getLdapSearchBaseGroup (),
-				String.format (getLdapFilterGroupsByUid (), uid, getLdapBase ()),
-				new AttributesMapper() {
-					@Override
-					public Object mapFromAttributes(Attributes attributes)
-							throws NamingException {
-						
-						if (attributes.get("objectClass").contains ("bronhouder")) {
-							final Bronhouder bronhouder = getBronhouderByCommonName (attributes.get("cn").get ().toString ());
-							if (bronhouder == null) {
-								throw new NamingException ("bronhouder does not exist");
-							}
-							return new GebruikersRolImpl (gebruiker, Rol.BRONHOUDER, bronhouder);
-						} else if (attributes.get ("cn") != null && "beheerder".equals (attributes.get ("cn").get ().toString ())) {
-							return new GebruikersRolImpl (gebruiker, Rol.BEHEERDER, null);
-						}
-						
-						return null;
-					}
-				}
-			);
-		
-		for (Object o: searchResult) {
-			if (o != null) {
-				result.add ((GebruikersRol)o); 
-			}
-		}
-		
-		return result;
-	}
-
 	/* (non-Javadoc)
 	 * @see nl.ipo.cds.dao.ManagerDao#getIdentity(java.lang.Long)
 	 */

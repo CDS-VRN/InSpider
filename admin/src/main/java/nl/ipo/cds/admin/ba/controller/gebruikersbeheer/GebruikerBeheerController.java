@@ -12,10 +12,7 @@ import nl.ipo.cds.admin.ba.propertyeditor.IdentityPropertyEditor;
 import nl.ipo.cds.dao.ManagerDao;
 import nl.ipo.cds.domain.Bronhouder;
 import nl.ipo.cds.domain.Gebruiker;
-import nl.ipo.cds.domain.GebruikersRol;
-import nl.ipo.cds.domain.Rol;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -42,6 +39,7 @@ public class GebruikerBeheerController {
 	@Autowired
 	private ManagerDao managerDao;
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@InitBinder
 	protected void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(Bronhouder.class, "bronhouder", new IdentityPropertyEditor(Bronhouder.class, this.managerDao));
@@ -93,25 +91,7 @@ public class GebruikerBeheerController {
 			// Existing Gebruiker GET or POST
 			Gebruiker gebruiker = this.managerDao.getGebruiker(gebruikersNaam);
 			gebruikerForm.setGebruiker(gebruiker);
-	
-			List<GebruikersRol> gebruikersRollen = this.managerDao.getGebruikersRollenByGebruiker(gebruiker);
-			// For now (CDS-INSPIRE) there can only be one role
-			if(CollectionUtils.size(gebruikersRollen) != 1){
-				model.addAttribute("userMessage", "LDAP fout geconfigureerd. Gebruiker \"" + gebruikersNaam + "\" heeft meer dan 1 rol.");
-			} else {
-				GebruikersRol gebruikersRol = gebruikersRollen.get(0);
-				/* Explicitly don't preset "gebruikerForm.beheerder" and "gebruikerForm.bronhouder" on submit,
-				 * because when the "beheerder"-checkbox is not checked, there won't be
-				 * a "beheerder"-request-parameter (which will set gebruikerForm.beheerder to false).
-				 * Same goes for bronhouder-combobox. When it's disabled it won't send a bronhouder-request-parameter with a null value.
-				 */
-				if(StringUtils.isBlank(submit)){
-					gebruikerForm.setBeheerder(gebruikersRol.getRol().equals(Rol.BEHEERDER)? true : false);
-					gebruikerForm.setBronhouder(gebruikersRollen.get(0).getBronhouder());
-				}
-	
-				gebruikerForm.setGebruikersRol(gebruikersRol);
-			}
+			gebruikerForm.setBeheerder(gebruiker.isSuperuser ());
 		}
 		
 		return gebruikerForm;
@@ -164,14 +144,7 @@ public class GebruikerBeheerController {
 			this.managerDao.create(gebruikerForm.getGebruiker());
 		} else {
 			this.managerDao.update(gebruikerForm.getGebruiker());
-			// Update the GebruikerRol if necessary
-			this.managerDao.delete(gebruikerForm.getGebruikersRol());
 		}
-		
-		this.managerDao.createGebruikersRol(gebruikerForm.getGebruiker(), 
-				gebruikerForm.isBeheerder() ? Rol.BEHEERDER : Rol.BRONHOUDER, 
-				gebruikerForm.getBronhouder()
-				);
 		
 		// Redirect after POST pattern
 		return "redirect:/ba/gebruikersbeheer/gebruikers";
@@ -189,7 +162,6 @@ public class GebruikerBeheerController {
 			status.setComplete();
 		}
 
-		this.managerDao.delete(gebruikerForm.getGebruikersRol());
 		this.managerDao.delete(gebruikerForm.getGebruiker());
 
 		return "redirect:/ba/gebruikersbeheer/gebruikers";

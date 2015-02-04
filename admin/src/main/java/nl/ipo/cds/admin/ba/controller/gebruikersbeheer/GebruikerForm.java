@@ -8,7 +8,6 @@ import javax.validation.constraints.AssertTrue;
 
 import nl.ipo.cds.domain.Bronhouder;
 import nl.ipo.cds.domain.Gebruiker;
-import nl.ipo.cds.domain.GebruikersRol;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -24,8 +23,6 @@ public class GebruikerForm {
 	private boolean beheerder;
 	
 	private Bronhouder bronhouder;
-
-	private GebruikersRol gebruikersRol;
 
 	private boolean changePassword;
 	
@@ -81,18 +78,6 @@ public class GebruikerForm {
 
 	public void setBronhouder(Bronhouder bronhouder) {
 		this.bronhouder = bronhouder;
-	}
-
-	/**
-	 * @param gebruikersRol
-	 */
-	public void setGebruikersRol(GebruikersRol gebruikersRol) {
-		this.gebruikersRol = gebruikersRol;
-		
-	}
-
-	public GebruikersRol getGebruikersRol() {
-		return gebruikersRol;
 	}
 
 	// To satisfy Spring MVC. However, we won't display the password ever 

@@ -6,7 +6,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.List;
 
@@ -17,8 +16,6 @@ import nl.ipo.cds.domain.BronhouderThema;
 import nl.ipo.cds.domain.DbGebruiker;
 import nl.ipo.cds.domain.Gebruiker;
 import nl.ipo.cds.domain.GebruikerThemaAutorisatie;
-import nl.ipo.cds.domain.GebruikersRol;
-import nl.ipo.cds.domain.Rol;
 import nl.ipo.cds.domain.Thema;
 import nl.ipo.cds.domain.TypeGebruik;
 
@@ -273,110 +270,6 @@ public class GebruikerDaoTest extends BaseManagerDaoTest {
 		
 		assertTrue (managerDao.authenticate(gebruiker.getGebruikersnaam(), "12test34"));
 	}
-	
-    // =========================================================================
-    // GebruikersRol:
-    // =========================================================================
-	private GebruikersRol getRol (final Gebruiker gebruiker, final Rol rol, final Bronhouder bronhouder) {
-		final List<GebruikersRol> rollen = managerDao.getGebruikersRollenByGebruiker (gebruiker);
-		
-		for (final GebruikersRol gr: rollen) {
-			if (gr.getRol () != rol) {
-				continue;
-			}
-			if ((gr.getBronhouder() == null && bronhouder != null) || (gr.getBronhouder () != null && bronhouder == null)) {
-				continue;
-			}
-			if (bronhouder != null && gr.getBronhouder () != null && !bronhouder.getCommonName().equals(gr.getBronhouder ().getCommonName())) {
-				continue;
-			}
-			
-			return gr;
-		}
-		
-		return null;
-	}
-	
-	private boolean hasRol (final Gebruiker gebruiker, final Rol rol, final Bronhouder bronhouder) {
-		return getRol (gebruiker, rol, bronhouder) != null;
-	}
-	
-	public void assertHasRol (final Gebruiker gebruiker, final Rol rol, final Bronhouder bronhouder) {
-		if (!hasRol (gebruiker, rol, bronhouder)) {
-			fail (String.format ("Gebruiker does not have role `%s` (%s)", rol.toString (), bronhouder));
-		}
-	}
-	
-	public void assertHasNotRol (final Gebruiker gebruiker, final Rol rol, final Bronhouder bronhouder) {
-		if (hasRol (gebruiker, rol, bronhouder)) {
-			fail (String.format ("Gebruiker has role `%s` (%s)", rol.toString (), bronhouder));
-		}
-	}
-	
-	@Test
-	public void testAddRolBeheerder () {
-		final Gebruiker gebruiker = managerDao.getGebruiker ("overijssel");
-		
-		assertHasNotRol (gebruiker, Rol.BEHEERDER, null);
-		managerDao.createGebruikersRol (gebruiker, Rol.BEHEERDER, null);
-		assertHasRol (gebruiker, Rol.BEHEERDER, null);
-	}
-	
-	@Test
-	public void testRemoveRolBeheerder () {
-		final Gebruiker gebruiker = managerDao.getGebruiker ("brabant");
-		final GebruikersRol rol = getRol (gebruiker, Rol.BEHEERDER, null);
-		
-		assertNotNull (rol);
-		
-		managerDao.delete (rol);
-		
-		assertHasNotRol (gebruiker, Rol.BEHEERDER, null);
-	}
-	
-	@Test(expected = RuntimeException.class)
-	public void testRemoveRolBeheerderInvalid () {
-		final Gebruiker gebruiker = managerDao.getGebruiker ("brabant");
-		final GebruikersRol rol = getRol (gebruiker, Rol.BEHEERDER, null);
-		
-		managerDao.delete (rol);
-		managerDao.delete (rol);
-	}
-	
-	@Test(expected = IllegalArgumentException.class)
-	public void testAddRolIllegalArgumentBeheerder () {
-		managerDao.createGebruikersRol (managerDao.getGebruiker("overijssel"), Rol.BEHEERDER, managerDao.getBronhouderByCommonName ("overijssel"));
-	}
-	
-	@Test(expected = IllegalArgumentException.class)
-	public void testAddRolIllegalArgumentBronhouder () {
-		managerDao.createGebruikersRol (managerDao.getGebruiker("overijssel"), Rol.BRONHOUDER, null);
-	}
-	
-	@Test(expected = IllegalArgumentException.class)
-	public void testAddRolInvalidGebruiker () {
-		final Gebruiker gebruiker = new Gebruiker ();
-		
-		gebruiker.setGebruikersnaam ("idgis");
-		gebruiker.setEmail ("test@idgis.nl");
-		gebruiker.setWachtwoord ("12test34");
-		
-		managerDao.createGebruikersRol (gebruiker, Rol.BEHEERDER, null);
-	}
-
-	/*
-	@Test
-	public void testAddRolBronhouder () {
-		final Gebruiker gebruiker = managerDao.getGebruiker ("overijssel");
-		final Bronhouder bronhouder = managerDao.getBronhouderByCode ("9923");
-		
-		assertHasNotRol (gebruiker, Rol.BRONHOUDER, bronhouder);
-		
-		managerDao.createGebruikersRol (gebruiker, Rol.BRONHOUDER, bronhouder);
-		
-		assertHasRol (gebruiker, Rol.BRONHOUDER, bronhouder);
-	}
-	*/
 	
 	/**
 	 * Verifies that a user initially has no database backing and that

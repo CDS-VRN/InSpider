@@ -27,7 +27,6 @@ import nl.idgis.commons.jobexecutor.JobLogger.LogLevel;
 import nl.idgis.commons.utils.DateTimeUtils;
 import nl.ipo.cds.admin.ba.UnauthorizedException;
 import nl.ipo.cds.admin.ba.attributemapping.AttributeMappingUtils;
-import nl.ipo.cds.admin.ba.attributemapping.AttributeMappingValidatorLogger;
 import nl.ipo.cds.admin.ba.attributemapping.FeatureTypeCache;
 import nl.ipo.cds.admin.ba.attributemapping.MappingFactory;
 import nl.ipo.cds.admin.ba.controller.beans.AttributeDescriptorsResponse;
@@ -58,15 +57,12 @@ import nl.ipo.cds.domain.DatasetFilter;
 import nl.ipo.cds.domain.EtlJob;
 import nl.ipo.cds.domain.FeatureType;
 import nl.ipo.cds.domain.Gebruiker;
-import nl.ipo.cds.domain.GebruikersRol;
-import nl.ipo.cds.domain.Rol;
 import nl.ipo.cds.domain.ValidateJob;
 import nl.ipo.cds.etl.DatasetHandlers;
 import nl.ipo.cds.etl.FeatureOutputStream;
 import nl.ipo.cds.etl.GenericFeature;
 import nl.ipo.cds.etl.PersistableFeature;
 import nl.ipo.cds.etl.attributemapping.AttributeMappingFactory;
-import nl.ipo.cds.etl.attributemapping.AttributeMappingValidator;
 import nl.ipo.cds.etl.filtering.DatasetFiltererFactory;
 import nl.ipo.cds.etl.filtering.FilterExpressionValidator;
 import nl.ipo.cds.etl.filtering.FilterExpressionValidator.MessageKey;
@@ -162,9 +158,8 @@ public class AttributeMappingController {
 		// Check whether the current user has access to the dataset:
 		final Bronhouder bronhouder = dataset.getBronhouder ();
 		final Gebruiker gebruiker = managerDao.getGebruiker (principal.getName ());
-		final GebruikersRol rol = managerDao.getGebruikersRollenByGebruiker (gebruiker).get (0);
 		
-		if (!Rol.BEHEERDER.equals (rol.getRol ()) && !managerDao.isUserAuthorizedForBronhouder (bronhouder, principal.getName ())) {
+		if (!gebruiker.isSuperuser () && !managerDao.isUserAuthorizedForBronhouder (bronhouder, principal.getName ())) {
 			throw new UnauthorizedException (String.format ("Not authorized for dataset %d", datasetId));
 		}
 		

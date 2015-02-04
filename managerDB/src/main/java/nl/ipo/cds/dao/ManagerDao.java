@@ -16,13 +16,11 @@ import nl.ipo.cds.domain.EtlJob;
 import nl.ipo.cds.domain.FilterExpression;
 import nl.ipo.cds.domain.Gebruiker;
 import nl.ipo.cds.domain.GebruikerThemaAutorisatie;
-import nl.ipo.cds.domain.GebruikersRol;
 import nl.ipo.cds.domain.Identity;
 import nl.ipo.cds.domain.JobLog;
 import nl.ipo.cds.domain.JobType;
 import nl.ipo.cds.domain.MappingOperation;
 import nl.ipo.cds.domain.MetadataDocument;
-import nl.ipo.cds.domain.Rol;
 import nl.ipo.cds.domain.Thema;
 import nl.ipo.cds.domain.TypeGebruik;
 
@@ -377,34 +375,6 @@ public interface ManagerDao {
 	 * @return True if the password is correct, false otherwise.
 	 */
 	public boolean authenticate (String gebruikersNaam, String wachtwoord);
-	
-	// GEBRUIKERSROL
-	/**
-	 * Creates a new relation between a user, a role and a 'bronhouder'. If the role is 'BEHEERDER', the bronhouder argument
-	 * must be null. Otherwise, if the role is 'BRONHOUDER', the bronhouder argument must be set to a bronhouder instance.
-	 * The relation can only be added if it doesn't currently exist.
-	 * 
-	 * @param gebruiker
-	 * @param rol
-	 * @param bronhouder
-	 * @return A new GebruikersRol instance representing the relation.
-	 */
-	public GebruikersRol createGebruikersRol (Gebruiker gebruiker, Rol rol, Bronhouder bronhouder);
-
-	/**
-	 * Deletes the given user role. The role can only be removed if it currently exists (e.g. it can't be deleted twice).
-	 * 
-	 * @param gebruikersRol The role to delete.
-	 */
-	public void delete(GebruikersRol gebruikersRol);
-
-	/**
-	 * Returns all roles for the given user. If the user has no roles, an empty array is returned.
-	 * 
-	 * @param gebruiker
-	 * @return A list containing all roles for this user.
-	 */
-	public List<GebruikersRol> getGebruikersRollenByGebruiker(Gebruiker gebruiker);
 	
 	// DATASET_TYPE
 	public void create(DatasetType datasetType); // C
