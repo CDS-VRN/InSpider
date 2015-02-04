@@ -1809,6 +1809,24 @@ public class ManagerDaoImpl implements ManagerDao {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public BronhouderThema getBronhouderThema (final Bronhouder bronhouder, final Thema thema) {
+		final List<BronhouderThema> result = entityManager
+			.createQuery ("from BronhouderThema bt where bt.bronhouder = ?1 and bt.thema = ?2", BronhouderThema.class)
+			.setParameter (1, bronhouder)
+			.setParameter (2, thema)
+			.getResultList ();
+		
+		if (result.size () != 1) {
+			return null;
+		}
+		
+		return result.get (0);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public List<BronhouderThema> getBronhouderThemas () {
 		return entityManager
 			.createQuery ("from BronhouderThema b order by b.bronhouder.naam asc, b.thema.naam asc", BronhouderThema.class)

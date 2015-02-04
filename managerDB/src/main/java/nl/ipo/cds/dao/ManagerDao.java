@@ -205,6 +205,15 @@ public interface ManagerDao {
 	void delete (BronhouderThema bronhouderThema);
 	
 	/**
+	 * Returns a specific {@link BronhouderThema} instance, or null if it doesn't exist.
+	 * 
+	 * @param bronhouder The bronhouder of the {@link BronhouderThema}
+	 * @param thema The thema of the {@link BronhouderThema}
+	 * @return The {@link BronhouderThema} instance containing the given bronhouder and theme, or null if it doesn't exist.
+	 */
+	BronhouderThema getBronhouderThema (Bronhouder bronhouder, Thema thema);
+	
+	/**
 	 * Returns all bronhouder themas. The list is ordered primarily by bronhouder name, then
 	 * by thema name.
 	 * 

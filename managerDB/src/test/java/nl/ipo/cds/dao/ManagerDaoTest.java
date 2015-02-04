@@ -25,7 +25,6 @@ import nl.ipo.cds.domain.BronhouderThema;
 import nl.ipo.cds.domain.Dataset;
 import nl.ipo.cds.domain.DatasetType;
 import nl.ipo.cds.domain.EtlJob;
-import nl.ipo.cds.domain.GebruikerThemaAutorisatie;
 import nl.ipo.cds.domain.ImportJob;
 import nl.ipo.cds.domain.JobLog;
 import nl.ipo.cds.domain.Thema;
@@ -617,5 +616,19 @@ public class ManagerDaoTest extends BaseManagerDaoTest {
     	entityManager.flush ();
     	
     	assertEquals (3, managerDao.getBronhouderThemas ().size ());
+    }
+    
+    @Test
+    public void testGetBronhouderThema () {
+    	entityManager.flush ();
+    	
+    	final BronhouderThema bronhouderThema = managerDao.getBronhouderThema (
+    			managerDao.getBronhouderByNaam ("Drenthe"), 
+    			managerDao.getThemaByName ("Protected sites")
+    		);
+    	
+    	assertNotNull (bronhouderThema);
+    	assertEquals ("Drenthe", bronhouderThema.getBronhouder ().getNaam ());
+    	assertEquals ("Protected sites", bronhouderThema.getThema ().getNaam ());
     }
 }

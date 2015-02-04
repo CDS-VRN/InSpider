@@ -20,6 +20,7 @@ import nl.ipo.cds.domain.BronhouderThema;
 import nl.ipo.cds.domain.Gebruiker;
 import nl.ipo.cds.domain.GebruikerThemaAutorisatie;
 import nl.ipo.cds.domain.Thema;
+import nl.ipo.cds.domain.TypeGebruik;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -135,8 +136,23 @@ public class AutorisatieController {
 	 * Redirects to {@link AutorisatieController#showGebruikerThemaAutorisatie(Model)} if the user
 	 * can't be found.
 	 */
-	@RequestMapping (value = "gebruikers/{commonName}/edit", method = RequestMethod.GET)
-	public String showGebruikerThemaAutorisatieForm (final @PathVariable("commonName") String commonName, final Model model) {
+	@RequestMapping (value = "gebruikers/{username}/edit", method = RequestMethod.GET)
+	public String showGebruikerThemaAutorisatieForm (final @PathVariable("username") String username, final Model model) {
+		final Gebruiker gebruiker = managerDao.getGebruiker (username);
+		if (gebruiker == null) {
+			return "redirect:/ba/gebruikersbeheer/autorisatie/gebruikers";
+		}
+		
+		model.addAttribute ("gebruiker", gebruiker);
+		model.addAttribute ("bronhouderThemas", managerDao.getBronhouderThemas ());
+		
+		final Map<BronhouderThema, GebruikerThemaAutorisatie> autorisatie = new HashMap<BronhouderThema, GebruikerThemaAutorisatie> ();
+		for (final GebruikerThemaAutorisatie gta: managerDao.getGebruikerThemaAutorisatie (gebruiker)) {
+			autorisatie.put (gta.getBronhouderThema (), gta);
+		}
+		
+		model.addAttribute ("autorisatie", autorisatie);
+		
 		return "/ba/gebruikersbeheer/gebruiker-autorisatie-edit";
 	}
 
@@ -145,9 +161,71 @@ public class AutorisatieController {
 	 * Redirects to {@link AutorisatieController#showGebruikerThemaAutorisatie(Model)} upon completion or if the user
 	 * can't be found.
 	 */
-	@RequestMapping (value = "gebruikers/{commonName}/edit", method = RequestMethod.POST)
+	@RequestMapping (value = "gebruikers/{username}/edit", method = RequestMethod.POST)
 	@Transactional
-	public String processGebruikerThemaAutorisatieForm (final @PathVariable("commonName") String commonName, final Model model) {
+	public String processGebruikerThemaAutorisatieForm (
+			final @PathVariable("username") String username, 
+			final Model model,
+			final @Valid AutorisatieMap autorisatieMap,
+			final BindingResult bindingResult) {
+		
+		final Gebruiker gebruiker = managerDao.getGebruiker (username);
+		
+		// Redirect back to the list in case of error:
+		if (gebruiker == null || bindingResult.hasErrors ()) {
+			return "redirect:/ba/gebruikersbeheer/autorisatie/gebruikers";
+		}
+
+		// Delete all current authorization for the user:
+		final List<GebruikerThemaAutorisatie> currentGtas = new ArrayList<GebruikerThemaAutorisatie> (managerDao.getGebruikerThemaAutorisatie (gebruiker));
+		for (final GebruikerThemaAutorisatie gta: currentGtas) {
+			managerDao.delete (gta);
+		}
+		
+		// Insert new authorization for the user:
+		for (final Map.Entry<String, String> entry: autorisatieMap.getAutorisatie ().entrySet ()) {
+			if (entry.getValue () == null || entry.getValue ().isEmpty ()) {
+				continue;
+			}
+			
+			// Decode the typeGebruik value:
+			final TypeGebruik typeGebruik;
+			try {
+				typeGebruik = TypeGebruik.valueOf (entry.getValue ());
+			} catch (IllegalArgumentException e) {
+				continue;
+			}
+			
+			// Decode the ids and locate thema and bronhouder:
+			final String[] parts = entry.getKey ().split ("\\-");
+			if (parts.length != 2) {
+				continue;
+			}
+			
+			final Bronhouder bronhouder;
+			final Thema thema;
+
+			try {
+				bronhouder = managerDao.getBronhouder (Long.parseLong (parts[0]));
+				thema = managerDao.getThema (Long.parseLong (parts[1]));
+			} catch (NumberFormatException e) {
+				continue;
+			}
+			
+			if (bronhouder == null || thema == null) {
+				continue;
+			}
+			
+			// Locate the appropriate BronhouderThema instance:
+			final BronhouderThema bronhouderThema = managerDao.getBronhouderThema (bronhouder, thema);
+			if (bronhouderThema == null) {
+				continue;
+			}
+
+			// Create the GebruikerThemaAutorisatie relation:
+			managerDao.createGebruikerThemaAutorisatie (gebruiker, bronhouderThema, typeGebruik);
+		}
+		
 		return "redirect:/ba/gebruikersbeheer/autorisatie/gebruikers";
 	}
 	
@@ -238,6 +316,20 @@ public class AutorisatieController {
 		@SuppressWarnings("unused")
 		public void setIds (final Map<Long, Boolean> ids) {
 			this.ids = ids;
+		}
+	}
+	
+	private static class AutorisatieMap {
+		@Valid
+		private Map<String, String> autorisatie = new HashMap<String, String> ();
+
+		public Map<String, String> getAutorisatie () {
+			return autorisatie;
+		}
+
+		@SuppressWarnings("unused")
+		public void setAutorisatie (final Map<String, String> autorisatie) {
+			this.autorisatie = autorisatie;
 		}
 	}
 }
