@@ -313,8 +313,6 @@ public interface ManagerDao {
 
 	public Bronhouder getBronhouderByCommonName(String code); // R
 	
-	public List<Bronhouder> getBronhoudersByUsername(String username); // R
-
 	/**
 	 * Looks up a bronhouder by (unique) code. Returns the bronhouder with the given code, or
 	 * null if no such bronhouder exists.
@@ -420,8 +418,26 @@ public interface ManagerDao {
 
 	public long getJobFaseLogCount (AbstractJob job);
 
-	public boolean isUserAuthorizedForBronhouder(Bronhouder bronhouder, String userName);
+	/**
+	 * Returns true if the given user is authorized to modify the given bronhouder.
+	 * 
+	 * @param bronhouder	The bronhouder
+	 * @param userName		The username (uid) of the user to look for.
+	 * @return				True if the user has the requested authorization.
+	 */
+	boolean isUserAuthorizedForBronhouder(Bronhouder bronhouder, String userName);
 
+	/**
+	 * Tests whether the user with the given username (uid) has permissions on the given theme.
+	 *  
+	 * @param bronhouder	The bronhouder to test.
+	 * @param theme			The theme to test.
+	 * @param username		The username to look for.
+	 * @param typeGebruik	The authorization type to test.
+	 * @return				True if the user has the requested authorization.
+	 */
+	boolean isUserAuthorizedForThema (Bronhouder bronhouder, Thema theme, String username, TypeGebruik typeGebruik);
+	
 	public Bronhouder getFirstAuthorizedBronhouder(String userName);
 
 	/**

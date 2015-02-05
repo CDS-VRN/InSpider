@@ -57,7 +57,9 @@
 	<!-- Dao's -->
 	<bean id="managerDao" class="nl.ipo.cds.dao.impl.ManagerDaoImpl">
 		<constructor-arg ref="ldapTemplate" />
-		<property name="ldapBase" value="${ldap.ldapbase}" />
+		<property name="ldapBase" value="${ldap.ldapBase}"/>
+		<property name="ldapGroupDn" value="${ldap.ldapGroupDn}"/>
+		<property name="ldapPeopleBaseDn" value="${ldap.ldapPeopleBaseDn}"/>
 	</bean>
 	<bean id="jobDao" class="nl.ipo.cds.dao.impl.JobDaoImpl">
 		<constructor-arg ref="managerDao"/>

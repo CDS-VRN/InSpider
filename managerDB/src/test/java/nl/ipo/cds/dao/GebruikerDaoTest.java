@@ -83,16 +83,19 @@ public class GebruikerDaoTest extends BaseManagerDaoTest {
 		
 		LdapTestUtils.cleanAndSetup (ldapTemplate.getContextSource (), new DistinguishedName (), new ClassPathResource ("nl/ipo/cds/dao/testdata.ldif"));
 		
-		LdapTestUtils.loadLdif (ldapTemplate.getContextSource (), new ClassPathResource ("nl/ipo/cds/dao/bronhouders.ldif"));
 		((ManagerDaoImpl)managerDao).setLdapTemplate (ldapTemplate);
 		
+        entityManager.flush ();
+    }
+    
+    private void createGebruikerThemaAutorisatie () {
 		// Create GebruikerThemaAutorisatie instances for testing:
         createGebruikerThemaAutorisatie ("Thema 2", "Overijssel", "overijssel", TypeGebruik.RAADPLEGER);
         createGebruikerThemaAutorisatie ("Protected sites", "Limburg", "limburg", TypeGebruik.RAADPLEGER);
         createGebruikerThemaAutorisatie ("Thema 2", "Noord-Holland", "noord-holland", TypeGebruik.RAADPLEGER);
         createGebruikerThemaAutorisatie ("Protected sites", "Drenthe", "drenthe", TypeGebruik.RAADPLEGER);
         
-        entityManager.flush ();
+    	entityManager.flush ();
     }
 
 	private GebruikerThemaAutorisatie createGebruikerThemaAutorisatie (final String themeName, final String bronhouderName, final String gebruikerName, final TypeGebruik typeGebruik) {
@@ -122,6 +125,7 @@ public class GebruikerDaoTest extends BaseManagerDaoTest {
 		final Gebruiker gebruiker = managerDao.getGebruiker ("overijssel");
 		
 		assertNotNull (gebruiker);
+		assertEquals ("uid=overijssel,ou=OtherPeople", gebruiker.getLdapGebruiker ().getDistinguishedName ());
 		assertEquals ("overijssel", gebruiker.getGebruikersnaam ());
 		assertEquals ("test@idgis.nl", gebruiker.getEmail ());
 		assertNull (gebruiker.getMobile ());
@@ -177,7 +181,7 @@ public class GebruikerDaoTest extends BaseManagerDaoTest {
 		managerDao.create (gebruiker);
 	}
 	
-	@Test(expected = NameAlreadyBoundException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void testCreateGebruikerDuplicate () {
 		final Gebruiker gebruiker = new Gebruiker ();
 		
@@ -297,7 +301,7 @@ public class GebruikerDaoTest extends BaseManagerDaoTest {
 	}
 	
 	public @Test void testGetAllThemasForBronhouder () throws Throwable {
-		entityManager.flush ();
+    	createGebruikerThemaAutorisatie ();
 		
 		final Thema thema = managerDao.getThemaByName ("Protected sites");
 		final Bronhouder bronhouder = managerDao.getBronhouderByCommonName ("overijssel");
@@ -315,17 +319,9 @@ public class GebruikerDaoTest extends BaseManagerDaoTest {
 		assertEquals ("Thema 2", themas.get (1).getNaam ());
 	}
 	
-	public @Test void testGetBronhoudersByUsername () throws Throwable {
-		final List<Bronhouder> bronhouders = managerDao.getBronhoudersByUsername ("limburg");
-		
-		assertNotNull (bronhouders);
-		assertEquals (1, bronhouders.size ());
-		assertEquals ("limburg", bronhouders.get (0).getCommonName ());
-	}
-	
     @Test
     public void testCreateGebruikerThemaAutorisatie () throws Throwable {
-    	entityManager.flush ();
+    	createGebruikerThemaAutorisatie ();
 
     	assertEquals (4, entityManager.createQuery ("from GebruikerThemaAutorisatie", GebruikerThemaAutorisatie.class).getResultList ().size ());
     	
@@ -351,7 +347,7 @@ public class GebruikerDaoTest extends BaseManagerDaoTest {
     
     @Test
     public void testDeleteGebruikerThemaAutorisatie () {
-    	entityManager.flush ();
+    	createGebruikerThemaAutorisatie ();
     	
     	final GebruikerThemaAutorisatie gta = entityManager
     			.createQuery ("from GebruikerThemaAutorisatie", GebruikerThemaAutorisatie.class)
@@ -369,7 +365,7 @@ public class GebruikerDaoTest extends BaseManagerDaoTest {
     
     @Test
     public void testGetGebruikerThemaAutorisatie () {
-    	entityManager.flush ();
+    	createGebruikerThemaAutorisatie ();
     	
     	final List<GebruikerThemaAutorisatie> gtas = managerDao.getGebruikerThemaAutorisatie ();
     	
@@ -398,7 +394,7 @@ public class GebruikerDaoTest extends BaseManagerDaoTest {
     
     @Test
     public void testGetGebruikerThemaAutorisatieByGebruiker () {
-    	entityManager.flush ();
+    	createGebruikerThemaAutorisatie ();
     	
     	final List<GebruikerThemaAutorisatie> gtas = managerDao.getGebruikerThemaAutorisatie (managerDao.getGebruiker ("drenthe"));
     	
@@ -411,6 +407,8 @@ public class GebruikerDaoTest extends BaseManagerDaoTest {
     
     @Test
     public void testGetGebruikerThemaAutorisatieByBronhouder () {
+    	createGebruikerThemaAutorisatie ();
+    	
     	final List<GebruikerThemaAutorisatie> gtas = managerDao.getGebruikerThemaAutorisatie (managerDao.getBronhouderByNaam ("Drenthe"));
     	
     	assertEquals (1, gtas.size ());
@@ -422,6 +420,8 @@ public class GebruikerDaoTest extends BaseManagerDaoTest {
     
     @Test
     public void testGetGebruikerThemaAutorisatieByThema () {
+    	createGebruikerThemaAutorisatie ();
+    	
     	final List<GebruikerThemaAutorisatie> gtas = managerDao.getGebruikerThemaAutorisatie (managerDao.getThemaByName ("Protected sites"));
     	
     	assertEquals (2, gtas.size ());

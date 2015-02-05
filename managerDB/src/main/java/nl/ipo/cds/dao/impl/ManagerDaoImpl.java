@@ -5,11 +5,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -32,6 +38,7 @@ import nl.ipo.cds.dao.ManagerDao;
 import nl.ipo.cds.dao.SortField;
 import nl.ipo.cds.dao.SortOrder;
 import nl.ipo.cds.dao.impl.ldap.GebruikerAttributesMapper;
+import nl.ipo.cds.dao.impl.ldap.GebruikerContextMapper;
 import nl.ipo.cds.domain.AttributeMapping;
 import nl.ipo.cds.domain.Bronhouder;
 import nl.ipo.cds.domain.BronhouderThema;
@@ -70,15 +77,23 @@ public class ManagerDaoImpl implements ManagerDao {
 
 	private EntityManager entityManager;
 	private LdapTemplate ldapTemplate;
+	
+	/**
+	 * The base DN for the LDAP server.
+	 */
 	private String ldapBase = "dc=inspire,dc=idgis,dc=eu";
-	private String ldapSearchBasePeople = "ou=People";
-	private String ldapSearchBaseGroup = "ou=Group";
-	private String ldapFilterGebruiker = "(&(objectClass=inetOrgPerson)(uid=%s))";
-	private String ldapFilterAllGebruikers = "(objectClass=inetOrgPerson)";
-	private String ldapFilter = "(&(objectClass=groupOfNames)(member=uid=%s,ou=People,%s))";
-	private String ldapFilterBronhouderByCommonName = "(&(objectClass=groupOfNames)(cn=%s))";
-	private String ldapFilterGroupsByUid = "(&(objectClass=groupOfNames)(member=uid=%s,ou=People,%s))";
-
+	
+	/**
+	 * The DN of the LDAP group that contains all CDS users. Any inetOrgPerson that is a member of this group
+	 * has access to the CDS.
+	 */
+	private String ldapGroupDn = "cn=cds-gebruikers,ou=Group";
+	
+	/**
+	 * Base DN to use when creating new users. Existing users are persisted using their original DN.
+	 */
+	private String ldapPeopleBaseDn = "ou=People";
+	
 	@PersistenceContext(unitName = "cds")
 	public void setEntityManager(EntityManager entityManager) {
 		this.entityManager = entityManager;
@@ -99,69 +114,29 @@ public class ManagerDaoImpl implements ManagerDao {
 	public LdapTemplate getLdapTemplate () {
 		return ldapTemplate;
 	}
+
+	public void setLdapBase (final String ldapBase) {
+		this.ldapBase = ldapBase;
+	}
 	
 	public String getLdapBase () {
 		return ldapBase;
 	}
 	
-	public void setLdapBase (final String ldapBase) {
-		this.ldapBase = ldapBase;
+	public void setLdapGroupDn (final String ldapGroupDn) {
+		this.ldapGroupDn = ldapGroupDn;
 	}
 	
-	public String getLdapSearchBaseGroup () {
-		return ldapSearchBaseGroup;
+	public String getLdapGroupDn () {
+		return ldapGroupDn;
 	}
 	
-	public void setLdapSearchBaseGroup (String ldapSearchBaseGroup) {
-		this.ldapSearchBaseGroup = ldapSearchBaseGroup;
-	}
-
-	public String getLdapSearchBasePeople () {
-		return ldapSearchBasePeople;
+	public void setLdapPeopleBaseDn (final String baseDn) {
+		this.ldapPeopleBaseDn = baseDn;
 	}
 	
-	public void setLdapSearchBasePeople (String ldapSearchBasePeople) {
-		this.ldapSearchBasePeople = ldapSearchBasePeople;
-	}
-	
-	public String getLdapFilter () {
-		return ldapFilter;
-	}
-	
-	public void setLdapFilter (String ldapFilter) {
-		this.ldapFilter = ldapFilter;
-	}
-	
-	public String getLdapFilterGebruiker () {
-		return ldapFilterGebruiker;
-	}
-	
-	public void setLdapFilterGebruiker (final String ldapFilterGebruiker) {
-		this.ldapFilterGebruiker = ldapFilterGebruiker;
-	}
-	
-	public String getLdapFilterAllGebruikers () {
-		return ldapFilterAllGebruikers;
-	}
-	
-	public void setLdapFilterAllGebruikers (final String ldapFilterAllGebruikers) {
-		this.ldapFilterAllGebruikers = ldapFilterAllGebruikers;
-	}
-	
-	public String getLdapFilterBronhouderByCommonName () {
-		return ldapFilterBronhouderByCommonName;
-	}
-	
-	public void setLdapFilterBronhouderByCommonName (final String ldapFilterBronhouderByCommonName) {
-		this.ldapFilterBronhouderByCommonName = ldapFilterBronhouderByCommonName;
-	}
-	
-	public String getLdapFilterGroupsByUid () {
-		return ldapFilterGroupsByUid;
-	}
-	
-	public void setLdapFilterGroupsByUid (final String ldapFilterGroupsByUid) {
-		this.ldapFilterGroupsByUid = ldapFilterGroupsByUid;
+	public String getLdapPeopleBaseDn () {
+		return ldapPeopleBaseDn;
 	}
 	
 	// -------------
@@ -808,33 +783,6 @@ public class ManagerDaoImpl implements ManagerDao {
 		return bronhouder ;
 	}
 
-	@Override
-	public List<Bronhouder> getBronhoudersByUsername(String username) {
-		
-		// Perform a query on the LDAP server, the username is substituted in the LDAP query string:
-		List<?> searchResult = ldapTemplate.search (
-				getLdapSearchBaseGroup (),
-				String.format (getLdapFilter (), username, getLdapBase ()), 
-				new AttributesMapper() {
-					@Override
-					public Object mapFromAttributes(Attributes attributes)
-							throws NamingException {
-
-						return getBronhouderByCommonName (attributes.get ("cn").get ().toString ());
-					}
-				});
-
-		// Filter 'bronhouder' instances from the LDAP search results:
-		List<Bronhouder> bronhouders = new ArrayList<Bronhouder> ();
-		for (Object o: searchResult) {
-			if (o != null && o instanceof Bronhouder) {
-				bronhouders.add ((Bronhouder)o);
-			}
-		}
-		
-		return bronhouders;
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -859,39 +807,67 @@ public class ManagerDaoImpl implements ManagerDao {
 	public Bronhouder getFirstAuthorizedBronhouder (String userName) {
 		Assert.notNull(userName, "UserName shouldn't be null");
 		
-		Bronhouder bronhouder = null;
-		
-		// Get all bronhouders this user is authorized for
-		final List<Bronhouder> userBronhouders = this.getBronhoudersByUsername(userName);
-		
-		// Try to set the bronhouder to the first bronhouder of all bronhouders this user is authorized for
-		if(userBronhouders.size() >= 1){
-			bronhouder = userBronhouders.get(0);
-		} else {
-			// if this fails (e.g. a beheerder is not authorized for any bronhouder),
-			// pick the first from the list of all bronhouders)
-			List<Bronhouder> bronhouderList = this.getAllBronhouders();
-			bronhouder = bronhouderList.get(0);
+		final Gebruiker gebruiker = getGebruiker (userName);
+		if (gebruiker == null) {
+			return null;
 		}
-
-		return bronhouder;
+		
+		final List<GebruikerThemaAutorisatie> gtas = getGebruikerThemaAutorisatie (gebruiker);
+		if (gtas.isEmpty ()) {
+			return null;
+		}
+		
+		return gtas.get (0).getBronhouderThema ().getBronhouder ();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean isUserAuthorizedForBronhouder (Bronhouder bronhouder, String userName) {
-		Assert.notNull(bronhouder, "bronhouder shouldn't be null");
-		
-		boolean authorized = false;
-		
-		// Get all bronhouders this user is authorized for
-		final List<Bronhouder> userBronhouders = this.getBronhoudersByUsername(userName);
-		
-		// check if user is authorized for requested bronhouderId
-		if (userBronhouders.contains (bronhouder)) {
-			authorized = true;
+		if (bronhouder == null) {
+			throw new NullPointerException ("bronhouder shouldn't be null");
+		}
+		if (userName == null) {
+			throw new NullPointerException ("userName cannot be null");
 		}
 		
-		return authorized;
+		final Gebruiker gebruiker = getGebruiker (userName);
+		
+		return gebruiker != null && gebruiker.isSuperuser ();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isUserAuthorizedForThema (final Bronhouder bronhouder, final Thema theme, final String username, final TypeGebruik typeGebruik) {
+		if (bronhouder == null) {
+			throw new NullPointerException ("bronhouder cannot be null");
+		}
+		if (theme == null) {
+			throw new NullPointerException ("theme cannot be null");
+		}
+		if (username == null) {
+			throw new NullPointerException ("username cannot be null");
+		}
+		if (typeGebruik == null) {
+			throw new NullPointerException ("typeGebruik cannot be null");
+		}
+		
+		final Gebruiker gebruiker = getGebruiker (username);
+		final BronhouderThema bronhouderThema = getBronhouderThema (bronhouder, theme);
+		if (gebruiker == null || bronhouderThema == null) {
+			return false;
+		}
+		
+		for (final GebruikerThemaAutorisatie gta: getGebruikerThemaAutorisatie (gebruiker)) {
+			if (gta.getBronhouderThema ().equals (bronhouderThema) && gta.getTypeGebruik ().isAllowed (typeGebruik)) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	/**
@@ -1288,16 +1264,31 @@ public class ManagerDaoImpl implements ManagerDao {
 	 * @param rebind
 	 */
 	private void bindGebruiker (LdapGebruiker gebruiker, boolean rebind) {
-		final DistinguishedName dn = new DistinguishedName (getLdapSearchBasePeople ());
-		dn.add ("uid", gebruiker.getGebruikersnaam ());
+		final DistinguishedName dn;
+		if (gebruiker.getDistinguishedName () == null) {
+			dn = new DistinguishedName (getLdapPeopleBaseDn ());
+			dn.add ("uid", gebruiker.getGebruikersnaam ());
+		} else {
+			dn = new DistinguishedName (gebruiker.getDistinguishedName ());
+		}
 		
 		try {
 			final Attributes attributes = new GebruikerAttributesMapper ().toAttributes (gebruiker);
 			
+			// Bind or rebind the user:
 			if (rebind) {
 				ldapTemplate.rebind(dn, null, attributes);
 			} else {
 				ldapTemplate.bind (dn, null, attributes);
+			}
+			
+			// Add group membership:
+			final DistinguishedName gebruikerDn = new DistinguishedName (getLdapBase ()).append (new DistinguishedName (dn));
+			if (!getUserDns ().contains (gebruikerDn)) { 
+				final Attribute attribute = new BasicAttribute ("member", gebruikerDn.toString ());
+				final ModificationItem modificationItem = new ModificationItem (DirContext.ADD_ATTRIBUTE, attribute);
+				
+				ldapTemplate.modifyAttributes (new DistinguishedName (getLdapGroupDn ()), new ModificationItem[] { modificationItem });
 			}
 		} catch (NamingException e) {
 			throw new RuntimeException (e);
@@ -1320,6 +1311,10 @@ public class ManagerDaoImpl implements ManagerDao {
 	 */
 	@Override
 	public void create (Gebruiker gebruiker) {
+		if (getGebruiker (gebruiker.getGebruikersnaam ()) != null) {
+			throw new IllegalArgumentException (String.format ("User %s already exists", gebruiker.getGebruikersnaam ()));
+		}
+		
 		if (gebruiker.getLdapGebruiker () != null) {
 			bindGebruiker (gebruiker.getLdapGebruiker (), false);
 		}
@@ -1351,14 +1346,52 @@ public class ManagerDaoImpl implements ManagerDao {
 		
 	}
 	
-	private LdapGebruiker getLdapGebruiker (final String gebruikersnaam) {
-		final List<?> searchResult = ldapTemplate.search (
-				getLdapSearchBasePeople (),
-				String.format (getLdapFilterGebruiker (), gebruikersnaam),
-				new GebruikerAttributesMapper ()
-			);
+	/**
+	 * Produces a set of DN's of all users that are a member of the CDS group in LDAP.
+	 * 
+	 * @return The DN's of all members of the CDS group in LDAP.
+	 */
+	@SuppressWarnings("unchecked")
+	private Set<DistinguishedName> getUserDns () {
+		return (Set<DistinguishedName>)ldapTemplate.lookup (
+			getLdapGroupDn (),
+			new AttributesMapper () {
+				@Override
+				public Object mapFromAttributes (final Attributes attributes) throws NamingException {
+					final Attribute attribute = attributes.get ("member");
+					final Set<DistinguishedName> values = new HashSet<DistinguishedName> ();
+					
+					for (int i = 0; i < attribute.size (); ++ i) {
+						values.add (new DistinguishedName (attribute.get (i).toString ()));
+					}
+					
+					return values;
+				}
+			});
+		
+	}
 	
-		return searchResult.size () > 0 ? (LdapGebruiker)searchResult.get (0) : null;
+	private LdapGebruiker getLdapGebruiker (final String gebruikersnaam) {
+		return getLdapGebruiker (gebruikersnaam, getUserDns ());
+	}
+	
+	private LdapGebruiker getLdapGebruiker (final String gebruikersnaam, final Set<DistinguishedName> members) {
+		final String query = String.format ("(&(objectClass=inetOrgPerson)(uid=%s))", gebruikersnaam);
+		
+		@SuppressWarnings("unchecked")
+		final List<LdapGebruiker> searchResult = (List<LdapGebruiker>)ldapTemplate.search (
+				new DistinguishedName (),
+				query,
+				new GebruikerContextMapper ()
+			);
+
+		if (searchResult.isEmpty ()) {
+			return null;
+		}
+		
+		final DistinguishedName gebruikerDn = new DistinguishedName (getLdapBase ()).append (new DistinguishedName (searchResult.get (0).getDistinguishedName ()));
+		
+		return members.contains (gebruikerDn) ? searchResult.get (0) : null;
 	}
 	
 	private DbGebruiker getDbGebruiker (final String gebruikersnaam) {
@@ -1387,24 +1420,30 @@ public class ManagerDaoImpl implements ManagerDao {
 	}
 	
 	private List<LdapGebruiker> getAllLdapGebruikers () {
-		final List<?> searchResult = ldapTemplate.search (
-				getLdapSearchBasePeople (),
-				getLdapFilterAllGebruikers (),
-				new GebruikerAttributesMapper ()
-			);
+		final Set<DistinguishedName> userDns = getUserDns ();
+		final List<LdapGebruiker> gebruikers = new ArrayList<LdapGebruiker> ();
 		
-		Collections.sort (searchResult, new Comparator<Object>() {
+		for (final DistinguishedName dn: userDns) {
+			final String username = dn.getValue ("uid");
+			if (username == null) {
+				continue;
+			}
+			
+			final LdapGebruiker gebruiker = getLdapGebruiker (username);
+			
+			if (gebruiker != null) {
+				gebruikers.add (gebruiker);
+			}
+		}
+		
+		Collections.sort (gebruikers, new Comparator<LdapGebruiker> () {
 			@Override
-			public int compare (Object a, Object b) {
-				return ((LdapGebruiker)a).getGebruikersnaam().compareTo (((LdapGebruiker)b).getGebruikersnaam ());
+			public int compare (final LdapGebruiker o1, final LdapGebruiker o2) {
+				return o1.getGebruikersnaam ().compareTo (o2.getGebruikersnaam ());
 			}
 		});
 		
-		@SuppressWarnings("unchecked")
-		final List<LdapGebruiker> gebruikers = (List<LdapGebruiker>) searchResult;
-		
-		return Collections.<LdapGebruiker>unmodifiableList (gebruikers);
-		
+		return Collections.unmodifiableList (gebruikers);
 	}
 	
 	private List<DbGebruiker> getAllDbGebruikers () {
@@ -1450,9 +1489,13 @@ public class ManagerDaoImpl implements ManagerDao {
 		}
 			
 		if (gebruiker.getLdapGebruiker () != null) {
-			final DistinguishedName dn = new DistinguishedName (getLdapSearchBasePeople ());
-			
-			dn.add ("uid", gebruiker.getLdapGebruiker ().getGebruikersnaam ());
+			final DistinguishedName dn;
+			if (gebruiker.getLdapGebruiker ().getDistinguishedName () == null) {
+				dn = new DistinguishedName (getLdapPeopleBaseDn ());
+				dn.add ("uid", gebruiker.getLdapGebruiker ().getGebruikersnaam ());
+			} else {
+				dn = new DistinguishedName (gebruiker.getLdapGebruiker ().getDistinguishedName ());
+			}
 			
 			ldapTemplate.unbind (dn);
 		}
@@ -1472,7 +1515,17 @@ public class ManagerDaoImpl implements ManagerDao {
 	 */
 	@Override
 	public boolean authenticate (final String gebruikersNaam, final String wachtwoord) {
-		return ldapTemplate.authenticate (getLdapSearchBasePeople (), String.format(getLdapFilterGebruiker(), gebruikersNaam), wachtwoord);
+		final LdapGebruiker ldapGebruiker = getLdapGebruiker (gebruikersNaam);
+		if (ldapGebruiker == null) {
+			return false;
+		}
+		
+		final String query = String.format ("(&(objectClass=inetOrgPerson)(uid=%s))", gebruikersNaam);
+		return ldapTemplate.authenticate (
+				new DistinguishedName (), 
+				query, 
+				wachtwoord
+			);
 	}
 	
 	// -----------------------

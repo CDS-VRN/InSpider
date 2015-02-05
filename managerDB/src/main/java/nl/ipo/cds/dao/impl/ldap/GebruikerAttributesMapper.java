@@ -16,7 +16,7 @@ public class GebruikerAttributesMapper extends EntityAttributesMapper<LdapGebrui
 
 	@Override
 	public LdapGebruiker fromAttributes(Attributes attributes) throws NamingException {
-		final LdapGebruiker gebruiker = new LdapGebruiker ();
+		final LdapGebruiker gebruiker = new LdapGebruiker (getString (attributes, "dn"));
 		
 		gebruiker.setGebruikersnaam (getString (attributes, "uid"));
 		gebruiker.setEmail (getString (attributes, "mail"));
