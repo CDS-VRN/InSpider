@@ -49,4 +49,8 @@ public enum TypeGebruik {
 	public boolean isAllowed (final TypeGebruik typeGebruik) {
 		return permissions.contains (typeGebruik);
 	}
+	
+	public Set<TypeGebruik> getPermissions () {
+		return Collections.unmodifiableSet (permissions);
+	}
 }
