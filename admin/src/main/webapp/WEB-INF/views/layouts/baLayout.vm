@@ -140,6 +140,7 @@
 									    </div>
 									</div>
 									#end
+									#if($authz.anyGranted("ROLE_DATABEHEERDER"))
 							    	<div id="tabs_ba_naw" class="dijitTab">
 									    <div class='dijitTabInnerDiv'>
 									        <div title="Contact informatie beheren" class='dijitTabContent' onClick="location.href='#springUrl('/ba/naw')';">
@@ -147,6 +148,7 @@
 									        </div>
 									    </div>
 									</div>
+									#end
 									#if($authz.anyGranted("ROLE_DATABEHEERDER"))
 							    	<div id="tabs_ba_datasetconfig" class="dijitTab">
 									    <div class='dijitTabInnerDiv'>

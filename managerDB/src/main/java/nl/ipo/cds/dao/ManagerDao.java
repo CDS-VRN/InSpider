@@ -438,8 +438,6 @@ public interface ManagerDao {
 	 */
 	boolean isUserAuthorizedForThema (Bronhouder bronhouder, Thema theme, String username, TypeGebruik typeGebruik);
 	
-	public Bronhouder getFirstAuthorizedBronhouder(String userName);
-
 	/**
 	 * Returns the last validated job for the given arguments, or
 	 * null if no such job exists.

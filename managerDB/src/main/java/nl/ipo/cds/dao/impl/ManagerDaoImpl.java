@@ -802,24 +802,6 @@ public class ManagerDaoImpl implements ManagerDao {
 		return bronhouders.isEmpty () ? null : bronhouders.get (0);
 	}
 	
-	
-	@Override
-	public Bronhouder getFirstAuthorizedBronhouder (String userName) {
-		Assert.notNull(userName, "UserName shouldn't be null");
-		
-		final Gebruiker gebruiker = getGebruiker (userName);
-		if (gebruiker == null) {
-			return null;
-		}
-		
-		final List<GebruikerThemaAutorisatie> gtas = getGebruikerThemaAutorisatie (gebruiker);
-		if (gtas.isEmpty ()) {
-			return null;
-		}
-		
-		return gtas.get (0).getBronhouderThema ().getBronhouder ();
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */

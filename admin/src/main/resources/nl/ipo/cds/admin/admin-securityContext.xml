@@ -29,6 +29,8 @@
 		
 		<!-- Access by users in specific roles: -->
 		<intercept-url pattern="/ba/etloverzicht/**" access="ROLE_DATABEHEERDER,ROLE_SUPERUSER"/>
+		<intercept-url pattern="/ba/naw/**" access="ROLE_DATABEHEERDER,ROLE_SUPERUSER"/>
+		<intercept-url pattern="/ba/datasetconfig/**" access="ROLE_DATABEHEERDER,ROLE_SUPERUSER"/>
 		
 		<!-- Access by all authenticated users: -->
 		<intercept-url pattern="/**" access="ROLE_USER" />
