@@ -1,6 +1,7 @@
 package nl.ipo.cds.dao;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -95,20 +96,21 @@ public class ManagerDaoAuthenticationProvider implements AuthenticationProvider 
         
         authorities.add (new SimpleGrantedAuthority ("ROLE_USER"));
         
+        final Set<TypeGebruik> typeGebruik = new HashSet<TypeGebruik> ();
+        
         if (gebruiker.isSuperuser ()) {
         	authorities.add (new SimpleGrantedAuthority ("ROLE_SUPERUSER"));
+        	typeGebruik.addAll (Arrays.asList (TypeGebruik.values ()));
+        } else {
+	        for (final GebruikerThemaAutorisatie gta: managerDao.getGebruikerThemaAutorisatie (gebruiker)) {
+	        	for (final TypeGebruik permission: gta.getTypeGebruik ().getPermissions ()) {
+		        	typeGebruik.add (permission);
+	        	}
+	        }
         }
         
-        final Set<TypeGebruik> typeGebruik = new HashSet<TypeGebruik> ();
-        for (final GebruikerThemaAutorisatie gta: managerDao.getGebruikerThemaAutorisatie (gebruiker)) {
-        	for (final TypeGebruik permission: gta.getTypeGebruik ().getPermissions ()) {
-	        	if (typeGebruik.contains (permission)) {
-	        		continue;
-	        	}
-	        	
-	        	typeGebruik.add (permission);
-	        	authorities.add (new SimpleGrantedAuthority ("ROLE_" + permission.toString().toUpperCase ()));
-        	}
+        for (final TypeGebruik tg: typeGebruik) {
+        	authorities.add (new SimpleGrantedAuthority ("ROLE_" + tg.toString().toUpperCase ()));
         }
         
         return Collections.unmodifiableList (authorities);

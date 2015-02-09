@@ -35,10 +35,12 @@ public class BAIndexController {
 	@RequestMapping
 	public String index () {
 		AuthzImpl authz = new AuthzImpl();
-		if (authz.anyGranted("ROLE_BEHEERDER")){
+		if (authz.anyGranted("ROLE_SUPERUSER")){
 			return "redirect:/ba/monitoring";
-		}else{
+		} else if (authz.anyGranted("ROLE_DATABEHEERDER")) {
 			return "redirect:/ba/etloverzicht";
+		}else{
+			return "redirect:/unauthorized";
 		}
 	}
 

@@ -378,7 +378,7 @@ require ([
 				<tbody>
 			        <tr>
 			            <td title="Filter op Bronhouder" width="20%">
-			                <select data-dojo-type="dijit/form/FilteringSelect" id="bronhouderId" name="bronhouderId" required="true" #if(! $authz.anyGranted("ROLE_BEHEERDER")) disabled #end  style="width:90%">
+			                <select data-dojo-type="dijit/form/FilteringSelect" id="bronhouderId" name="bronhouderId" required="true" #if($bronhouders.size() == 1) disabled #end  style="width:90%">
 								<script type="dojo/method" data-dojo-event="onChange">
 									this.getParent().submit();
 								</script>
@@ -388,7 +388,7 @@ require ([
 							</select>
 			            </td>
 			            <td title="Filter op Thema" width="20%">
-			                <select data-dojo-type="dijit/form/Select" id="themaId" name="themaId" required="true"  style="width:90%;border-width:1px; border-style:solid; border-color:black">
+			                <select data-dojo-type="dijit/form/Select" id="themaId" name="themaId" required="true" #if($themas.size() == 1) disabled #end style="width:90%;border-width:1px; border-style:solid; border-color:black">
 								<script type="dojo/method" data-dojo-event="onChange">
 									this.getParent().submit();
 								</script>
