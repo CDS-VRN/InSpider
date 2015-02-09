@@ -1,4 +1,3 @@
-BEGIN;
 
 -- Authorization changes.
 ALTER TABLE manager.themabronhouderauthorization RENAME TO BronhouderThema;
@@ -32,4 +31,3 @@ alter table manager.GebruikerThemaAutorisatie
 
 -- Add parameters column to etljob for storing job parameters (used by TagJob for example).
 ALTER TABLE manager.etljob ADD COLUMN parameters TEXT;
-COMMIT;
