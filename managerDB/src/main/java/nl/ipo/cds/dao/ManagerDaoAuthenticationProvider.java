@@ -10,6 +10,8 @@ import nl.ipo.cds.domain.Gebruiker;
 import nl.ipo.cds.domain.GebruikerThemaAutorisatie;
 import nl.ipo.cds.domain.TypeGebruik;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,6 +31,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
  */
 public class ManagerDaoAuthenticationProvider implements AuthenticationProvider {
 
+	private final static Logger logger = LoggerFactory.getLogger (ManagerDaoAuthenticationProvider.class);
+	
 	private final ManagerDao managerDao;
 
 	/**
@@ -59,19 +63,26 @@ public class ManagerDaoAuthenticationProvider implements AuthenticationProvider 
         final String password = (String) authentication.getCredentials();
 		
         if (username == null || username.isEmpty ()) {
+        	logger.error ("Failed to authenticate: empty username");
         	throw new BadCredentialsException ("Empty username");
         }
         if (password == null) {
+        	logger.error ("Failed to authenticate user " + username + ": null password was provided");
         	throw new BadCredentialsException ("null password was provided");
         }
         
         // Attempt to authenticate:
         if (!managerDao.authenticate (username, password)) {
+        	logger.error ("Failed to authenticate user " + username + ": bad credentials");
         	throw new BadCredentialsException ("Bad credentials");
         }
 
         // Create user details:
-        return new UsernamePasswordAuthenticationToken (username, password, getGrantedAuthorities (username));
+        final List<GrantedAuthority> grantedAuthorities = getGrantedAuthorities (username);
+        
+        logger.info ("User " + username + " successfully authenticated (" + grantedAuthorities.toString () + ")");
+        
+        return new UsernamePasswordAuthenticationToken (username, password, grantedAuthorities);
 	}
 	
 	private List<GrantedAuthority> getGrantedAuthorities (final String username) {
