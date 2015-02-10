@@ -1292,6 +1292,7 @@ public class ManagerDaoImpl implements ManagerDao {
 	 * @param gebruiker
 	 */
 	@Override
+	@Transactional
 	public void create (Gebruiker gebruiker) {
 		if (getGebruiker (gebruiker.getGebruikersnaam ()) != null) {
 			throw new IllegalArgumentException (String.format ("User %s already exists", gebruiker.getGebruikersnaam ()));
@@ -1301,7 +1302,13 @@ public class ManagerDaoImpl implements ManagerDao {
 			bindGebruiker (gebruiker.getLdapGebruiker (), false);
 		}
 		if (gebruiker.getDbGebruiker () != null) {
-			createDbGebruiker (gebruiker.getDbGebruiker ());
+			final DbGebruiker existing = getDbGebruiker (gebruiker.getGebruikersnaam ());
+
+			if (existing != null) {
+				entityManager.merge (gebruiker.getDbGebruiker ());
+			} else {
+				createDbGebruiker (gebruiker.getDbGebruiker ());
+			}
 		}
 	}
 	
