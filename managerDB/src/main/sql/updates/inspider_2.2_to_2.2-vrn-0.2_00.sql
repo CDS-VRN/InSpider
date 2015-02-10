@@ -31,3 +31,5 @@ alter table manager.GebruikerThemaAutorisatie
 
 -- Add parameters column to etljob for storing job parameters (used by TagJob for example).
 ALTER TABLE manager.etljob ADD COLUMN parameters TEXT;
+
+insert into manager.jobtype (id, naam, prioriteit) select nextval('manager.hibernate_sequence'), 'TAG', '200';
