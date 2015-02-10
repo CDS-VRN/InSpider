@@ -16,6 +16,7 @@ import nl.ipo.cds.domain.Gebruiker;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
@@ -91,7 +92,6 @@ public class GebruikerBeheerController {
 			// Existing Gebruiker GET or POST
 			Gebruiker gebruiker = this.managerDao.getGebruiker(gebruikersNaam);
 			gebruikerForm.setGebruiker(gebruiker);
-			gebruikerForm.setBeheerder(gebruiker.isSuperuser ());
 		}
 		
 		return gebruikerForm;
@@ -121,6 +121,7 @@ public class GebruikerBeheerController {
 	 * @return
 	 */
 	@RequestMapping(value="/save", method = RequestMethod.POST)
+	@Transactional
 	public String submit (@Valid @ModelAttribute(value="gebruikerForm") GebruikerForm gebruikerForm, BindingResult bindingResult,
 			SessionStatus status, @PathVariable(value="gebruikersNaam") String gebruikersNaam, Model model) {
 		
