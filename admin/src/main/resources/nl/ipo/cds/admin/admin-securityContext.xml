@@ -27,6 +27,7 @@
 		<intercept-url pattern="/ba/gebruikersbeheer/**" access="ROLE_SUPERUSER" />
 		<intercept-url pattern="/ba/vdconfig/**" access="ROLE_SUPERUSER" />
 		<intercept-url pattern="/ba/metadata/**" access="ROLE_SUPERUSER"/>
+		<intercept-url pattern="/ba/downloadservice/**" access="ROLE_SUPERUSER"/>
 		
 		<!-- Access by users in specific roles: -->
 		<intercept-url pattern="/ba/etloverzicht/**" access="ROLE_DATABEHEERDER,ROLE_SUPERUSER"/>
