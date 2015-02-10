@@ -233,7 +233,7 @@ public abstract class AbstractValidator<T extends PersistableFeature, Keys exten
 		}
 	}
 	
-	public void afterJob (final EtlJob job, final EventLogger<Keys> logger, final Context context) {
+	public void afterJob (final EtlJob job, final Reporter reporter, final Context context) {
 	}
 	
 	public void beforeFeature (final EtlJob job, final EventLogger<Keys> logger, final Context context, final T feature) {
@@ -337,15 +337,21 @@ public abstract class AbstractValidator<T extends PersistableFeature, Keys exten
 
 			@Override
 			public void finish() {
+			}
+
+			@Override
+			public boolean postProcess() {
 				if (postExecutor != null) {
 					postExecutor.validate (context);
 				}
-				
-				afterJob (etlJob, logger, context);
-				
+
+				afterJob (etlJob, reporter, context);
+
 				if (reporter.hasErrors ()){
 					etlJob.setGeometryErrorCount (reporter.getGeometryErrorCount ());
+					return false;
 				}
+				return true;
 			}
 		};
 	}
@@ -392,21 +398,22 @@ public abstract class AbstractValidator<T extends PersistableFeature, Keys exten
 			final String currentInspireId = messageValues.length >= 2 ? messageValues[1] : "";
 			
 			if (messageKey.isAddToShapeFile ()) {
-				logEvent (context, messageKey, context.getLastLocation (), currentInspireId, messageValues);
+				logEvent (context, messageKey, context.getLastLocation (), currentInspireId, true,  messageValues);
 			} else {
-				logEvent (context, messageKey, messageValues);
+				logEvent (context, messageKey, null, null, true,  messageValues);
 			}
 		}
 		
 		public void logEvent (final Context context, Keys messageKey, String... messageValues) {
-			this.logEvent(context, messageKey, null, null, messageValues);
+			this.logEvent(context, messageKey, null, null, false, messageValues);
 		}
 		
-		public void logEvent (final Context context, Keys messageKey, Point point, String inspireId, String... messageValues) {
+		private void logEvent (final Context context, Keys messageKey, Point point, String inspireId, boolean removeDuplicateId, String... messageValues) {
 			final String currentId = messageValues.length >= 1 && messageValues[0] != null && messageValues[0].length () > 0 ? messageValues[0] : "[onbekend]";
 			// final String currentInspireId = messageValues.length >= 2 ? messageValues[1] : "";
-			
-			messageValues = messageValues.length > 2 ? Arrays.copyOfRange (messageValues, 2, messageValues.length) : new String[0];
+
+			int copyPosition = removeDuplicateId ? 2 : 1;
+			messageValues = messageValues.length > copyPosition ? Arrays.copyOfRange (messageValues, copyPosition, messageValues.length) : new String[0];
 			
 			if(messageKey.isAddToShapeFile()){
 				++ geometryErrorCount;
