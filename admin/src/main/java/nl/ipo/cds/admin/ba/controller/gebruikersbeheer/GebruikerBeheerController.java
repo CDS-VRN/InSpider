@@ -165,6 +165,7 @@ public class GebruikerBeheerController {
 	}
 
 	@RequestMapping(value="/delete", method = RequestMethod.GET)
+	@Transactional
 	public String delete (@ModelAttribute(value="gebruikerForm") GebruikerForm gebruikerForm,
 			BindingResult bindingResult, SessionStatus status, Model model,
 			Principal principal) {

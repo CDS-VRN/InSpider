@@ -1487,10 +1487,20 @@ public class ManagerDaoImpl implements ManagerDao {
 			}
 			
 			ldapTemplate.unbind (dn);
+			
+			// Remove group membership:
+			final DistinguishedName gebruikerDn = new DistinguishedName (getLdapBase ()).append (new DistinguishedName (dn));
+			if (getUserDns ().contains (gebruikerDn)) { 
+				final Attribute attribute = new BasicAttribute ("member", gebruikerDn.toString ());
+				final ModificationItem modificationItem = new ModificationItem (DirContext.REMOVE_ATTRIBUTE, attribute);
+				
+				ldapTemplate.modifyAttributes (new DistinguishedName (getLdapGroupDn ()), new ModificationItem[] { modificationItem });
+			}
 		}
 		
 		if (gebruiker.getDbGebruiker () != null) {
-			entityManager.remove (gebruiker.getDbGebruiker ());
+			final DbGebruiker dbGebruikerToDelete = entityManager.getReference (DbGebruiker.class, gebruiker.getDbGebruiker ().getGebruikersnaam ());
+			entityManager.remove (dbGebruikerToDelete);
 		}
 	}
 	
