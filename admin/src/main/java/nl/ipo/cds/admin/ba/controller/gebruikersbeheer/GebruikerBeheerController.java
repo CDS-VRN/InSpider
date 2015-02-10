@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.context.request.WebRequest;
 
 /**
  * 
@@ -123,13 +124,25 @@ public class GebruikerBeheerController {
 	@RequestMapping(value="/save", method = RequestMethod.POST)
 	@Transactional
 	public String submit (@Valid @ModelAttribute(value="gebruikerForm") GebruikerForm gebruikerForm, BindingResult bindingResult,
-			SessionStatus status, @PathVariable(value="gebruikersNaam") String gebruikersNaam, Model model) {
+			SessionStatus status, @PathVariable(value="gebruikersNaam") String gebruikersNaam, Model model,
+			final Principal principal,
+			final WebRequest request) {
+		
+		final boolean isSuperuser = request.getParameter ("gebruiker.superuser") != null;
+		gebruikerForm.getGebruiker ().setSuperuser (isSuperuser);
 		
 		// Check whether the username is unique when creating a new user.
 		if ("_new".equalsIgnoreCase (gebruikersNaam) && !bindingResult.hasFieldErrors ("gebruiker.gebruikersnaam")) {
 			final String naam = gebruikerForm.getGebruiker ().getGebruikersnaam ();
 			if (managerDao.getGebruiker (naam) != null) {
 				bindingResult.rejectValue ("gebruiker.gebruikersnaam", "nl.ipo.cds.admin.ba.controller.gebruikersbeheer.GebruikerBeheerController.duplicateUsername", new Object[] { }, "Er bestaat al een gebruiker met deze naam");
+			}
+		}
+		
+		// Raise an error if the user being modified is currently logged in and the superuser flag is set to false:
+		if (!"_new".equalsIgnoreCase (gebruikersNaam) && !isSuperuser) {
+			if (principal.getName ().equals (gebruikersNaam)) {
+				bindingResult.rejectValue ("gebruiker.superuser", "nl.ipo.cds.admin.ba.controller.gebruikersbeheer.GebruikerBeheerController.removeSuperuserFromCurrentUser", new Object[] { }, "Kan de eigenschap beheerder niet uitzetten voor de ingelogde gebruiker");
 			}
 		}
 		
