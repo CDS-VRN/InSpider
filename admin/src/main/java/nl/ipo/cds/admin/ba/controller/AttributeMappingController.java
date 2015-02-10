@@ -12,6 +12,7 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -52,11 +53,14 @@ import nl.ipo.cds.dao.ManagerDao;
 import nl.ipo.cds.dao.attributemapping.AttributeMappingDao;
 import nl.ipo.cds.dao.attributemapping.OperationDTO;
 import nl.ipo.cds.domain.Bronhouder;
+import nl.ipo.cds.domain.BronhouderThema;
 import nl.ipo.cds.domain.Dataset;
 import nl.ipo.cds.domain.DatasetFilter;
 import nl.ipo.cds.domain.EtlJob;
 import nl.ipo.cds.domain.FeatureType;
 import nl.ipo.cds.domain.Gebruiker;
+import nl.ipo.cds.domain.GebruikerThemaAutorisatie;
+import nl.ipo.cds.domain.Thema;
 import nl.ipo.cds.domain.ValidateJob;
 import nl.ipo.cds.etl.DatasetHandlers;
 import nl.ipo.cds.etl.FeatureOutputStream;
@@ -157,9 +161,16 @@ public class AttributeMappingController {
 		
 		// Check whether the current user has access to the dataset:
 		final Bronhouder bronhouder = dataset.getBronhouder ();
+		final Thema thema = dataset.getDatasetType ().getThema ();
 		final Gebruiker gebruiker = managerDao.getGebruiker (principal.getName ());
+		final Set<BronhouderThema> authorizedThemas = new HashSet<BronhouderThema> ();
+		final BronhouderThema bronhouderThema = managerDao.getBronhouderThema (bronhouder, thema);
 		
-		if (!gebruiker.isSuperuser () && !managerDao.isUserAuthorizedForBronhouder (bronhouder, principal.getName ())) {
+		for (final GebruikerThemaAutorisatie gta: managerDao.getGebruikerThemaAutorisatie (gebruiker)) {
+			authorizedThemas.add (gta.getBronhouderThema ());
+		}
+		
+		if (!gebruiker.isSuperuser () && (bronhouderThema == null || !authorizedThemas.contains (bronhouderThema))) {
 			throw new UnauthorizedException (String.format ("Not authorized for dataset %d", datasetId));
 		}
 		
