@@ -72,7 +72,6 @@ require ([
 		// The columns for the userGrid
         var layout = [
 	        { 	name: "Gebruikersnaam", field: "gebruikersnaam", width: "20%" },
-	        { 	name: "Bronhouder", field: "naam", width: "18%" },
 	        { 	name: "Beheerder", field: "beheerder", formatter: formatBoolean, width: "10%" },
 	        { 	name: "Email", field: "email", width: "20%" },
 	        { 	name: "Mobiel", field: "mobile", width: "20%" },
