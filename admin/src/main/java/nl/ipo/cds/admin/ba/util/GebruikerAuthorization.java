@@ -1,8 +1,10 @@
 package nl.ipo.cds.admin.ba.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -39,6 +41,15 @@ public class GebruikerAuthorization {
 		this.managerDao = managerDao;
 	}
 
+	/**
+	 * Returns the user in this GebruikerAuthorization.
+	 * 
+	 * @return The user.
+	 */
+	public Gebruiker getGebruiker () {
+		return gebruiker;
+	}
+	
 	/**
 	 * Returns all bronhouders for which this user has the given permissions.
 	 * 
@@ -156,5 +167,52 @@ public class GebruikerAuthorization {
 		}
 		
 		return getAuthorizedThemas ().contains (thema) ? thema : null;
+	}
+
+	/**
+	 * Returns a list of all authorized themes for the current user that are associated with the given
+	 * bronhouder.
+	 * 
+	 * @param bronhouder The bronhouder instance to use as a filter.
+	 * @return A collection of authorized themes, associated with the given bronhouder.
+	 */
+	public Collection<Thema> getAuthorizedThemas (final Bronhouder bronhouder) {
+		// Superusers have access to all themes linked to the given bronhouder:
+		if (gebruiker.isSuperuser ()) {
+			return Collections.unmodifiableCollection (managerDao.getAllThemas (bronhouder));
+		}
+		
+		final List<Thema> result = new ArrayList<Thema> ();
+		
+		for (final GebruikerThemaAutorisatie gta: managerDao.getGebruikerThemaAutorisatie (bronhouder)) {
+			result.add (gta.getBronhouderThema ().getThema ());
+		}
+		
+		return Collections.unmodifiableCollection (result);
+	}
+
+	/**
+	 * Returns a specific theme identified by themeName and associated with bronhouder, for which the current
+	 * user has permissions.
+	 * 
+	 * @param themaName		The theme name to use as a filter, or null.
+	 * @param bronhouder	The bronhouder to use as a filter.
+	 * @return				The theme identified by name, or the default theme, or null if there are no themes.
+	 */
+	public Thema getAuthorizedThemaByName (final String themaName, final Bronhouder bronhouder) {
+		final Collection<Thema> authorizedThemas = getAuthorizedThemas (bronhouder);
+		final Thema defaultTheme = authorizedThemas.isEmpty () ? null : authorizedThemas.iterator ().next ();
+		
+		if (themaName == null) {
+			return defaultTheme;
+		}
+		
+		for (final Thema thema: authorizedThemas) {
+			if (thema.getNaam ().equals (themaName)) {
+				return thema;
+			}
+		}
+		
+		return defaultTheme;
 	}
 }
