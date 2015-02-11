@@ -68,6 +68,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -1503,6 +1504,8 @@ public class ManagerDaoImpl implements ManagerDao {
 			try {
 				final DbGebruiker dbGebruikerToDelete = entityManager.getReference (DbGebruiker.class, gebruiker.getDbGebruiker ().getGebruikersnaam ());
 				entityManager.remove (dbGebruikerToDelete);
+			} catch (JpaObjectRetrievalFailureException e) {
+				// Ignore this exception: it is valid for a user not to have database backing.
 			} catch (EntityNotFoundException e) {
 				// Ignore this exception: it is valid for a user not to have database backing.
 			}

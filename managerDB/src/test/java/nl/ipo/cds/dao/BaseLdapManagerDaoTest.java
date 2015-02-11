@@ -15,7 +15,7 @@ import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.ldap.test.LdapTestUtils;
 
-public class BaseLdapManagerDaoTest extends BaseManagerDaoTest {
+public abstract class BaseLdapManagerDaoTest extends BaseManagerDaoTest {
 
 	protected static final DistinguishedName BASE_NAME = new DistinguishedName ("dc=inspire,dc=idgis,dc=eu");
 	protected static final String PRINCIPAL = "uid=admin,ou=system";
