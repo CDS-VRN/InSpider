@@ -18,6 +18,8 @@ import org.hibernate.validator.constraints.NotBlank;
  *
  */
 public class LdapGebruiker {
+	
+	private final String distinguishedName;
 
 	@NotBlank(message="Verplicht")
 	private String gebruikersnaam;
@@ -30,6 +32,34 @@ public class LdapGebruiker {
 	
 	@NotBlank(message="Verplicht")
 	private String wachtwoordHash;
+	
+	/**
+	 * Creates a new LDAP user without distinguished name. The DN is created when the user is
+	 * first persisted to the database.
+	 */
+	public LdapGebruiker () {
+		this (null);
+	}
+	
+	/**
+	 * Creates an LDAP user with a specific, distinguished name. Passing null as a DN
+	 * indicates this is a new user, the DN is created when the user is first persisted.
+	 * 
+	 * @param distinguishedName the DN of this user.
+	 */
+	public LdapGebruiker (final String distinguishedName) {
+		this.distinguishedName = distinguishedName;
+	}
+	
+	/**
+	 * Returns the distinguished name of this user, or null if the user has no DN yet.
+	 * If a user has no DN, the DN is created when the user is first persisted.
+	 * 
+	 * @return
+	 */
+	public String getDistinguishedName () {
+		return distinguishedName;
+	}
 	
 	/**
 	 * Returns the username of this user. The username also corresponds with the 'uid' attribute in LDAP.

@@ -43,7 +43,7 @@ require ([
 	<form name="dataset_form" method="POST" action="#springUrl('/ba/datasetconfig/')$bronhouder.id/">
 	<label>Bronhouder:&nbsp;&nbsp;&nbsp;
 	</label>
-    <select data-dojo-type="dijit/form/FilteringSelect" id="bronhouder" title="Provincie of bronhouder" name="bronhouder_Id" required="true" #if(! $authz.anyGranted("ROLE_BEHEERDER")) disabled #end>
+    <select data-dojo-type="dijit/form/FilteringSelect" id="bronhouder" title="Provincie of bronhouder" name="bronhouder_Id" required="true" #if($bronhouders.size()==1) disabled #end>
 		<script type="dojo/method" data-dojo-event="onChange">
 			var bronhouderId = this.get('value');
 			var url = "#springUrl('/ba/datasetconfig/')" + bronhouderId;

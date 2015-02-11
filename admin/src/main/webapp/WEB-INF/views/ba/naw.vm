@@ -6,7 +6,7 @@
 <form method="POST" action="#springUrl('/ba/naw/')$updateBronhouderForm.id/">
 	<label>Bronhouder:&nbsp;&nbsp;&nbsp;
 	</label>
-    <select data-dojo-type="dijit/form/FilteringSelect" id="bronhouderId" title="Provincie of bronhouder" name="bronhouderId" required="true" #if(! $authz.anyGranted("ROLE_BEHEERDER")) disabled #end>
+    <select data-dojo-type="dijit/form/FilteringSelect" id="bronhouderId" title="Provincie of bronhouder" name="bronhouderId" required="true" #if($bronhouders.size()==1) disabled #end>
 		<script type="dojo/method" data-dojo-event="onChange">
 					var bronhouderId = this.get('value');
 					var url = "#springUrl('/ba/naw/')" + bronhouderId;
