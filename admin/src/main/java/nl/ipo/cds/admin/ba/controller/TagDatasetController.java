@@ -1,5 +1,6 @@
 package nl.ipo.cds.admin.ba.controller;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,9 +11,12 @@ import nl.idgis.commons.jobexecutor.JobCreator;
 import nl.ipo.cds.admin.reporting.ReportConfiguration;
 import nl.ipo.cds.dao.ManagerDao;
 import nl.ipo.cds.dao.TagDao;
+import nl.ipo.cds.domain.Gebruiker;
+import nl.ipo.cds.domain.GebruikerThemaAutorisatie;
 import nl.ipo.cds.domain.TagDTO;
 import nl.ipo.cds.domain.TagJob;
 import nl.ipo.cds.domain.Thema;
+import nl.ipo.cds.domain.TypeGebruik;
 import nl.ipo.cds.etl.db.annotation.Table;
 import nl.ipo.cds.etl.theme.ThemeConfig;
 import nl.ipo.cds.etl.theme.ThemeDiscoverer;
@@ -64,19 +68,29 @@ public class TagDatasetController {
 
 	@Transactional
 	@RequestMapping(method = RequestMethod.POST)
-	public String tagTheme(@Valid @ModelAttribute("dto") TagDTO dto, Model model) {
+	public String tagTheme(@Valid @ModelAttribute("dto") TagDTO dto, Model model, final Principal principal) {
 		model.addAttribute("themas", getVaststelThemas());
 		
 		// check if thema is taggable
 		ThemeConfig<?> themeConfig = themeDiscoverer.getThemeConfiguration(dto.getThema());
 		Assert.notNull(themeConfig, "Theme with name " + dto.getThema() + " does not exist.");
-		//Assert.isTrue(themeConfig.isTaggable(), "Theme " + themeConfig.getThemeName() + " is not taggable!");
 		if(!themeConfig.isTaggable()){
 			model.addAttribute("themaError", "Thema " + themeConfig.getThemeName() + " kan niet worden vastgesteld!");
 			return "/ba/vaststellen";
 		}
-		// FIXME TODO check that user is authorized to tag this thema
-
+		
+		// check that user is authorized to tag this thema (check typeGebruik and Thema authorisatie)
+		Gebruiker gebruiker = managerDao.getGebruiker(principal.getName());
+		Thema thema = managerDao.getThemaByName(dto.getThema());
+		List<GebruikerThemaAutorisatie> listAuthorisatie = managerDao.getGebruikerThemaAutorisatie(gebruiker);
+		boolean authorized = false;
+		for (GebruikerThemaAutorisatie gebruikerThemaAutorisatie : listAuthorisatie) {
+			if((gebruikerThemaAutorisatie.getTypeGebruik().equals(TypeGebruik.VASTSTELLER)) && (gebruikerThemaAutorisatie.getBronhouderThema().equals(thema))){
+				authorized=true;
+			}
+		}
+		Assert.isTrue(authorized, "Deze gebruiker heeft niet de rechten om dit thema vast te stellen");
+		
 		// check if there is a job with the same tag already
 		// Also check in manager.job (joined with manager.etljob) table for a job that has the chosen tag in its parameters 
 		//and does have either one of the following status: CREATED, PREPARED, STARTED. (FINISHED and ABORTED jobs can be ignored).
