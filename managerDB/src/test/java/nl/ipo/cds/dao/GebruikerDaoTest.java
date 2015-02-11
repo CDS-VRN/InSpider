@@ -10,7 +10,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import nl.ipo.cds.categories.IntegrationTests;
-import nl.ipo.cds.dao.impl.ManagerDaoImpl;
 import nl.ipo.cds.domain.Bronhouder;
 import nl.ipo.cds.domain.BronhouderThema;
 import nl.ipo.cds.domain.DbGebruiker;
@@ -19,103 +18,12 @@ import nl.ipo.cds.domain.GebruikerThemaAutorisatie;
 import nl.ipo.cds.domain.Thema;
 import nl.ipo.cds.domain.TypeGebruik;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.ldap.core.DistinguishedName;
-import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.ldap.core.support.LdapContextSource;
-import org.springframework.ldap.test.LdapTestUtils;
 
 @Category(IntegrationTests.class)
-public class GebruikerDaoTest extends BaseManagerDaoTest {
+public class GebruikerDaoTest extends BaseLdapManagerDaoTest {
 
-	private static final DistinguishedName BASE_NAME = new DistinguishedName ("dc=inspire,dc=idgis,dc=eu");
-	private static final String PRINCIPAL = "uid=admin,ou=system";
-	private static final String CREDENTIALS = "secret";
-	private static final int PORT = 10389;
-	private static final String[] gebruikers = {
-		"brabant",
-		"drenthe",
-		"flevoland",
-		"fryslan",
-		"gelderland",
-		"groningen",
-		"limburg",
-		"noord-holland",
-		"overijssel",
-		"utrecht",
-		"zeeland",
-		"zuid-holland"
-	};
-	
-	private LdapTemplate ldapTemplate;
-	
-	@BeforeClass
-	public static void setUpClass () throws Exception {
-		LdapTestUtils.startApacheDirectoryServer (PORT, BASE_NAME.toString (), "odm-test", PRINCIPAL, CREDENTIALS);
-	}
-	
-	@AfterClass
-	public static void tearDownClass () throws Exception {
-		LdapTestUtils.destroyApacheDirectoryServer (PRINCIPAL, CREDENTIALS);
-	}
-	
-    @Before @Override
-    public void buildDB() throws Exception {
-    	super.buildDB ();
-
-    	
-		// Bind to the LDAP directory:
-		final LdapContextSource contextSource = new LdapContextSource ();
-		contextSource.setUrl ("ldap://127.0.0.1:" + PORT + "/dc=inspire,dc=idgis,dc=eu");
-		contextSource.setUserDn (PRINCIPAL);
-		contextSource.setPassword (CREDENTIALS);
-		contextSource.setPooled (false);
-		contextSource.afterPropertiesSet ();
-		
-		// Create an LDAP template:
-		ldapTemplate = new LdapTemplate (contextSource);
-		
-		LdapTestUtils.cleanAndSetup (ldapTemplate.getContextSource (), new DistinguishedName (), new ClassPathResource ("nl/ipo/cds/dao/testdata.ldif"));
-		
-		((ManagerDaoImpl)managerDao).setLdapTemplate (ldapTemplate);
-		
-        entityManager.flush ();
-    }
-    
-    private void createGebruikerThemaAutorisatie () {
-		// Create GebruikerThemaAutorisatie instances for testing:
-        createGebruikerThemaAutorisatie ("Thema 2", "Overijssel", "overijssel", TypeGebruik.RAADPLEGER);
-        createGebruikerThemaAutorisatie ("Protected sites", "Limburg", "limburg", TypeGebruik.RAADPLEGER);
-        createGebruikerThemaAutorisatie ("Thema 2", "Noord-Holland", "noord-holland", TypeGebruik.RAADPLEGER);
-        createGebruikerThemaAutorisatie ("Protected sites", "Drenthe", "drenthe", TypeGebruik.RAADPLEGER);
-        
-    	entityManager.flush ();
-    }
-
-	private GebruikerThemaAutorisatie createGebruikerThemaAutorisatie (final String themeName, final String bronhouderName, final String gebruikerName, final TypeGebruik typeGebruik) {
-		final Gebruiker gebruiker = managerDao.getGebruiker (gebruikerName);
-		
-		// Create database backing for the user:
-		managerDao.update (gebruiker);
-		
-		final BronhouderThema bronhouderThema = entityManager
-			.createQuery ("from BronhouderThema bt where bt.bronhouder.naam = ?1 and bt.thema.naam = ?2", BronhouderThema.class)
-			.setParameter (1, bronhouderName)
-			.setParameter (2, themeName)
-			.getSingleResult ();
-		
-		final GebruikerThemaAutorisatie gta = new GebruikerThemaAutorisatie (gebruiker.getDbGebruiker (), bronhouderThema, typeGebruik);
-		
-		entityManager.persist (gta);
-		
-		return gta;
-	}
-	
     // =========================================================================
     // Gebruiker CRUD:
     // =========================================================================
@@ -191,7 +99,11 @@ public class GebruikerDaoTest extends BaseManagerDaoTest {
 		
 		managerDao.create (gebruiker);
 	}
-	
+
+	/**
+	 * Test delete a user without database backing. Such a user only exists in LDAP and the additional properties
+	 * stored in the database have default values.
+	 */
 	@Test
 	public void testDeleteGebruiker () {
 		final Gebruiker gebruiker = managerDao.getGebruiker ("overijssel");
@@ -201,6 +113,37 @@ public class GebruikerDaoTest extends BaseManagerDaoTest {
 		managerDao.delete (gebruiker);
 		
 		final Gebruiker deletedGebruiker = managerDao.getGebruiker ("overijssel");
+		
+		assertNull (deletedGebruiker);
+	}
+	
+	/**
+	 * Test whether a user with database backing can be deleted. A user has database backing when the
+	 * superuser flag is persisted.
+	 */
+	@Test
+	public void testDeleteGebruikerWithDatabaseBacking () {
+		final Gebruiker gebruiker = new Gebruiker ();
+		
+		gebruiker.setGebruikersnaam ("test-with-db-backing");
+		gebruiker.setEmail ("mail@mail.local");
+		gebruiker.setSuperuser (true);
+		gebruiker.setWachtwoord ("abcde");
+		
+		managerDao.create (gebruiker);
+		
+		entityManager.flush ();
+		
+		final Gebruiker gebruikerToDelete = managerDao.getGebruiker ("test-with-db-backing");
+		
+		assertNotNull (gebruikerToDelete);
+		assertTrue (gebruikerToDelete.isSuperuser ());
+		
+		managerDao.delete (gebruiker);
+		
+		entityManager.flush ();
+		
+		final Gebruiker deletedGebruiker = managerDao.getGebruiker ("test-with-db-backing");
 		
 		assertNull (deletedGebruiker);
 	}

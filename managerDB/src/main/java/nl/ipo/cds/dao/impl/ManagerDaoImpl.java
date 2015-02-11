@@ -17,6 +17,7 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -1499,8 +1500,12 @@ public class ManagerDaoImpl implements ManagerDao {
 		}
 		
 		if (gebruiker.getDbGebruiker () != null) {
-			final DbGebruiker dbGebruikerToDelete = entityManager.getReference (DbGebruiker.class, gebruiker.getDbGebruiker ().getGebruikersnaam ());
-			entityManager.remove (dbGebruikerToDelete);
+			try {
+				final DbGebruiker dbGebruikerToDelete = entityManager.getReference (DbGebruiker.class, gebruiker.getDbGebruiker ().getGebruikersnaam ());
+				entityManager.remove (dbGebruikerToDelete);
+			} catch (EntityNotFoundException e) {
+				// Ignore this exception: it is valid for a user not to have database backing.
+			}
 		}
 	}
 	
