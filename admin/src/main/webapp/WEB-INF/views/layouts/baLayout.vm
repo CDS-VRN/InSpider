@@ -131,7 +131,7 @@
 									    </div>
 									</div>
 									#end
-									#if($authz.anyGranted("ROLE_DATABEHEERDER"))
+									#if($authz.anyGranted("ROLE_RAADPLEGER"))
 							    	<div id="tabs_ba_etloverzicht" class="dijitTab">
 									    <div class='dijitTabInnerDiv'>
 									        <div title="Overzichtspagina met actuele status van datasets" class='dijitTabContent' onClick="location.href='#springUrl('/ba/etloverzicht')';">
