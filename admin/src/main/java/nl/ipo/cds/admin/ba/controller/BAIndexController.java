@@ -38,10 +38,10 @@ public class BAIndexController {
 		AuthzImpl authz = new AuthzImpl();
 		if (authz.anyGranted("ROLE_SUPERUSER")){
 			return "redirect:/ba/monitoring";
-		} else if (authz.anyGranted("ROLE_DATABEHEERDER")) {
+		} else if (authz.anyGranted("ROLE_RAADPLEGER")) {
 			return "redirect:/ba/etloverzicht";
 		}else{
-			return "redirect:/raadpleger";
+			return "redirect:/no-access";
 		}
 	}
 
@@ -107,7 +107,7 @@ public class BAIndexController {
 	 * 
 	 * @return The view name.
 	 */
-	@RequestMapping ("/raadpleger")
+	@RequestMapping ("/no-access")
 	public String raadpleger (final Principal principal, final Model model) {
 		final Gebruiker gebruiker = managerDao.getGebruiker (principal.getName ());
 		
@@ -117,7 +117,7 @@ public class BAIndexController {
 			model.addAttribute ("gebruikerThemas", Collections.emptyList ());
 		}
 		
-		return "raadpleger";
+		return "no-access";
 	}
 }
 

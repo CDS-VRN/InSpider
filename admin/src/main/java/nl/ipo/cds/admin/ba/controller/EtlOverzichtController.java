@@ -110,7 +110,7 @@ public class EtlOverzichtController {
 								Principal principal
 							   ) {
 		
-		final GebruikerAuthorization gebruikerAuthorization = new GebruikerAuthorization (managerDao.getGebruiker (principal.getName ()), TypeGebruik.DATABEHEERDER, managerDao);
+		final GebruikerAuthorization gebruikerAuthorization = new GebruikerAuthorization (managerDao.getGebruiker (principal.getName ()), TypeGebruik.RAADPLEGER, managerDao);
 		final Bronhouder bronhouder = gebruikerAuthorization.getAuthorizedBronhouder (bronhouderId);
 		final Thema thema = gebruikerAuthorization.getAuthorizedThema (themaId);
 
@@ -221,7 +221,7 @@ public class EtlOverzichtController {
 									Model model,
 									Principal principal) {
 		
-		final GebruikerAuthorization gebruikerAuthorization = new GebruikerAuthorization (managerDao.getGebruiker (principal.getName ()), TypeGebruik.DATABEHEERDER, managerDao);
+		final GebruikerAuthorization gebruikerAuthorization = new GebruikerAuthorization (managerDao.getGebruiker (principal.getName ()), TypeGebruik.RAADPLEGER, managerDao);
 		final Bronhouder bronhouder = gebruikerAuthorization.getAuthorizedBronhouder (bronhouderId);
 		final Thema thema = gebruikerAuthorization.getAuthorizedThema (themaId);
 		
@@ -273,7 +273,7 @@ public class EtlOverzichtController {
 										@RequestParam(value="progress", required=false) String progress,
 										Model model,
 										Principal principal) {
-		final GebruikerAuthorization gebruikerAuthorization = new GebruikerAuthorization (managerDao.getGebruiker (principal.getName ()), TypeGebruik.DATABEHEERDER, managerDao);
+		final GebruikerAuthorization gebruikerAuthorization = new GebruikerAuthorization (managerDao.getGebruiker (principal.getName ()), TypeGebruik.RAADPLEGER, managerDao);
 		final Bronhouder bronhouder = gebruikerAuthorization.getAuthorizedBronhouder (bronhouderId);
 		
 		return this.getDatasetInfoMap(datasetTypeId, null, datasetStatusImport, progress, bronhouder);
@@ -294,7 +294,7 @@ public class EtlOverzichtController {
 										 @RequestParam(value="jobrefreshed", required=false) Boolean jobrefreshed,
 										 Model model,
 										 Principal principal) {
-		final Bronhouder bronhouder = new GebruikerAuthorization (managerDao.getGebruiker (principal.getName ()), TypeGebruik.DATABEHEERDER, managerDao)
+		final Bronhouder bronhouder = new GebruikerAuthorization (managerDao.getGebruiker (principal.getName ()), TypeGebruik.RAADPLEGER, managerDao)
 			.getAuthorizedBronhouder (bronhouderId);
 		
 		DatasetType datasetType = this.managerDao.getDatasetType(datasetTypeId);
@@ -337,8 +337,13 @@ public class EtlOverzichtController {
 							Model model,
 							Principal principal
 							) {
-		final Bronhouder bronhouder = new GebruikerAuthorization (managerDao.getGebruiker (principal.getName ()), TypeGebruik.DATABEHEERDER, managerDao)
-			.getAuthorizedBronhouder (bronhouderId);
+		final GebruikerAuthorization gebruikerAuthorization = new GebruikerAuthorization (managerDao.getGebruiker (principal.getName ()), TypeGebruik.DATABEHEERDER, managerDao); 
+		final Bronhouder bronhouder = gebruikerAuthorization.getAuthorizedBronhouder (bronhouderId);
+		
+		// Test permissions:
+		if (bronhouder == null || !gebruikerAuthorization.getAuthorizedThemas (bronhouder).contains (bronhouder)) {
+			return null;
+		}
 		
 		final DatasetType datasetType = managerDao.getDatasetType (datasetIdType);
 		Assert.notNull(datasetType, "DataSet with id \"" + datasetIdType + "\", could not be found.");
@@ -365,8 +370,13 @@ public class EtlOverzichtController {
 							Model model,
 							Principal principal
 							) {
-		final Bronhouder bronhouder = new GebruikerAuthorization (managerDao.getGebruiker (principal.getName ()), TypeGebruik.DATABEHEERDER, managerDao)
-			.getAuthorizedBronhouder (bronhouderId);
+		final GebruikerAuthorization gebruikerAuthorization = new GebruikerAuthorization (managerDao.getGebruiker (principal.getName ()), TypeGebruik.DATABEHEERDER, managerDao); 
+		final Bronhouder bronhouder = gebruikerAuthorization.getAuthorizedBronhouder (bronhouderId);
+		
+		// Test permissions:
+		if (bronhouder == null || !gebruikerAuthorization.getAuthorizedThemas (bronhouder).contains (bronhouder)) {
+			return null;
+		}
 		
 		final DatasetType datasetType = managerDao.getDatasetType (datasetIdType);
 		Assert.notNull(datasetType, "DataSet with id \"" + datasetIdType + "\", could not be found.");
@@ -400,7 +410,7 @@ public class EtlOverzichtController {
 			Model model,
 			Principal principal) {
 		
-		final Bronhouder bronhouder = new GebruikerAuthorization (managerDao.getGebruiker (principal.getName ()), TypeGebruik.DATABEHEERDER, managerDao)
+		final Bronhouder bronhouder = new GebruikerAuthorization (managerDao.getGebruiker (principal.getName ()), TypeGebruik.RAADPLEGER, managerDao)
 			.getAuthorizedBronhouder (bronhouderId);
 		
 		if (bronhouder == null) {
