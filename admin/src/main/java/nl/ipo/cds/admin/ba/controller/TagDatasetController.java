@@ -89,7 +89,10 @@ public class TagDatasetController {
 				authorized=true;
 			}
 		}
-		Assert.isTrue(authorized, "Deze gebruiker heeft niet de rechten om dit thema vast te stellen");
+		if(!authorized){
+			model.addAttribute("authError", "Deze gebruiker heeft niet de rechten om dit thema vast te stellen");
+			return "/ba/vaststellen";
+		}
 		
 		// check if there is a job with the same tag already
 		// Also check in manager.job (joined with manager.etljob) table for a job that has the chosen tag in its parameters 

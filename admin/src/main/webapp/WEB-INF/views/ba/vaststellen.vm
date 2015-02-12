@@ -22,9 +22,10 @@
 	
 	<form method="POST" action="#springUrl('/ba/vaststellen/')">
 	
-	<div id="errorbox" style="#if(!$tagIdError && !$themaError) display: none; #end">
+	<div id="errorbox" style="#if(!$tagIdError && !$themaError && !$authError) display: none; #end">
 		#if($tagIdError) <span>#e($tagIdError)</span> #end
 		#if($themaError) <span>#e($themaError)</span> #end
+		#if($authError) <span>#e($authError)</span> #end
 	</div>
 	<div id="successbox" style="#if(!$success) display: none; #end">
 		#if($success) <span>#e($success)</span> #end
