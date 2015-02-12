@@ -31,13 +31,13 @@
 		<intercept-url pattern="/ba/codelists/**" access="ROLE_SUPERUSER"/>
 		
 		<!-- Access by users in specific roles: -->
-		<intercept-url pattern="/ba/etloverzicht/**" access="ROLE_RAADPLEGER,ROLE_SUPERUSER"/>
-		<intercept-url pattern="/ba/naw/**" access="ROLE_DATABEHEERDER,ROLE_SUPERUSER"/>
-		<intercept-url pattern="/ba/datasetconfig/**" access="ROLE_DATABEHEERDER,ROLE_SUPERUSER"/>
-		<intercept-url pattern="/ba/vaststellen/**" access="ROLE_VASTSTELLER,ROLE_SUPERUSER"/>
-		<intercept-url pattern="/ba/download/**" access="ROLE_DATABEHEERDER,ROLE_SUPERUSER"/>
-		<intercept-url pattern="/ba/jobdetails/**" access="ROLE_DATABEHEERDER,ROLE_SUPERUSER"/>
-		<intercept-url pattern="/ba/attributemapping/**" access="ROLE_DATABEHEERDER,ROLE_SUPERUSER"/>
+		<intercept-url pattern="/ba/etloverzicht/**" access="ROLE_RAADPLEGER"/>
+		<intercept-url pattern="/ba/naw/**" access="ROLE_DATABEHEERDER"/>
+		<intercept-url pattern="/ba/datasetconfig/**" access="ROLE_DATABEHEERDER"/>
+		<intercept-url pattern="/ba/vaststellen/**" access="ROLE_VASTSTELLER"/>
+		<intercept-url pattern="/ba/download/**" access="ROLE_DATABEHEERDER"/>
+		<intercept-url pattern="/ba/jobdetails/**" access="ROLE_DATABEHEERDER"/>
+		<intercept-url pattern="/ba/attributemapping/**" access="ROLE_DATABEHEERDER"/>
 		
 		<!-- Access by all authenticated users: -->
 		<intercept-url pattern="/**" access="ROLE_USER" />
