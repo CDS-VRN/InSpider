@@ -1,23 +1,5 @@
 #set($showTabs = false)
 
-<h1>Raadpleger</h1>
-
 <p>
-	U bent momenteel aangemeld als raadpleger. Als raadpleger kunt u de gegevens van bronhouders behorende bij
-	thema's inzien via de services van het CDS.
+	U bent aangemeld bij de Centrale Data- en Services. Vanaf deze pagina kun u uw wachtwoord wijzigen middels bovenstaande link. 
 </p>
-
-#if($gebruikerThemas.isEmpty())
-	<p>
-		<strong>U heeft geen rechten om thema's van het CDS in te kunnen zien.</strong>
-	</p>
-#else
-	<p>
-		U heeft rechten om de volgende thema's in te kunnen zien:
-	</p>
-	<ul>
-		#foreach($gebruikerThema in $gebruikerThemas)
-		<li>#e($gebruikerThema.bronhouderThema.bronhouder.naam): #e($gebruikerThema.bronhouderThema.thema.naam)</li>
-		#end
-	</ul>
-#end
