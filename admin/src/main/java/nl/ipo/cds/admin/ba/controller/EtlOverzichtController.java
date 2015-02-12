@@ -340,16 +340,16 @@ public class EtlOverzichtController {
 		final GebruikerAuthorization gebruikerAuthorization = new GebruikerAuthorization (managerDao.getGebruiker (principal.getName ()), TypeGebruik.DATABEHEERDER, managerDao); 
 		final Bronhouder bronhouder = gebruikerAuthorization.getAuthorizedBronhouder (bronhouderId);
 		
-		// Test permissions:
-		if (bronhouder == null || !gebruikerAuthorization.getAuthorizedThemas (bronhouder).contains (bronhouder)) {
-			return null;
-		}
-		
 		final DatasetType datasetType = managerDao.getDatasetType (datasetIdType);
 		Assert.notNull(datasetType, "DataSet with id \"" + datasetIdType + "\", could not be found.");
 //		Assert.isTrue(bronhouder.equals(datasetType.getBronhouder()), "Requested dataset(" + datasetIdType + ") doesn't belong to requested bronhouder("+ bronhouderId +")");
 		Assert.isTrue(managerDao.getPendingJob (bronhouder, datasetType, uuid) == null, "There is already a pending validation-job for this dataset(" + datasetIdType + ") of this bronhouder("+ bronhouderId +")");
 
+		// Test permissions:
+		if (bronhouder == null || !gebruikerAuthorization.getAuthorizedThemas (bronhouder).contains (datasetType.getThema ())) {
+			return null;
+		}
+		
 		// make validate job
 		final ValidateJob job = new ValidateJob ();
 		// copy properties to job
@@ -373,16 +373,17 @@ public class EtlOverzichtController {
 		final GebruikerAuthorization gebruikerAuthorization = new GebruikerAuthorization (managerDao.getGebruiker (principal.getName ()), TypeGebruik.DATABEHEERDER, managerDao); 
 		final Bronhouder bronhouder = gebruikerAuthorization.getAuthorizedBronhouder (bronhouderId);
 		
-		// Test permissions:
-		if (bronhouder == null || !gebruikerAuthorization.getAuthorizedThemas (bronhouder).contains (bronhouder)) {
-			return null;
-		}
 		
 		final DatasetType datasetType = managerDao.getDatasetType (datasetIdType);
 		Assert.notNull(datasetType, "DataSet with id \"" + datasetIdType + "\", could not be found.");
 //		Assert.isTrue(bronhouder.equals(datasetType.getBronhouder()), "Requested dataset(" + datasetIdType + ") doesn't belong to requested bronhouder("+ bronhouderId +")");
 		Assert.isTrue(managerDao.getPendingJob (bronhouder, datasetType, uuid) == null, "There is already a pending import-job for this dataset(" + datasetIdType + ") of this bronhouder("+ bronhouderId +")");
 
+		// Test permissions:
+		if (bronhouder == null || !gebruikerAuthorization.getAuthorizedThemas (bronhouder).contains (datasetType.getThema ())) {
+			return null;
+		}
+		
 		// make import job
 		final ImportJob job = new ImportJob ();
 		// copy properties to job
