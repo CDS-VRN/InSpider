@@ -130,10 +130,10 @@ public class CdsJobExecuter {
 		rs.close();
 		lockStmt.close();
 		
-		if(!result) {
-			connection.close();
-			connection = null;
-		}
+//		if(!result) {
+//			connection.close();
+//			connection = null;
+//		}
 		
 		return connection;
 	}	
