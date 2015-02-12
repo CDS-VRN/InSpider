@@ -100,7 +100,9 @@ public class ManagerDaoAuthenticationProvider implements AuthenticationProvider 
         
         if (gebruiker.isSuperuser ()) {
         	authorities.add (new SimpleGrantedAuthority ("ROLE_SUPERUSER"));
-        	typeGebruik.addAll (Arrays.asList (TypeGebruik.values ()));
+        	if (!managerDao.getBronhouderThemas ().isEmpty ()) {
+        		typeGebruik.addAll (Arrays.asList (TypeGebruik.values ()));
+        	}
         } else {
 	        for (final GebruikerThemaAutorisatie gta: managerDao.getGebruikerThemaAutorisatie (gebruiker)) {
 	        	for (final TypeGebruik permission: gta.getTypeGebruik ().getPermissions ()) {
