@@ -1,8 +1,16 @@
 package nl.ipo.cds.etl.postvalidation;
 
-import com.vividsolutions.jts.io.ParseException;
-
 import geodb.GeoDB;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.deegree.geometry.Geometry;
@@ -12,13 +20,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
-
-import java.io.*;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import com.vividsolutions.jts.io.ParseException;
 
 /**
  * H2 Geometry Store implementation.

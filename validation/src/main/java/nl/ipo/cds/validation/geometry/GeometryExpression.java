@@ -109,11 +109,11 @@ public class GeometryExpression<K extends Enum<K> & ValidationMessage<K, C>, C e
 		};
 	}
 
-	public Expression<K, C, Boolean> isPolygon() {
-		return new AbstractUnaryTestExpression<K, C, T>(this, "IsPolygon") {
+	public Expression<K, C, Boolean> isSurface() {
+		return new AbstractUnaryTestExpression<K, C, T>(this, "IsSurface") {
 			@Override
 			public boolean test(final T value, final C context) {
-				if (value instanceof Polygon) {
+				if (value instanceof Surface) {
 					return true;
 				}
 				return false;
