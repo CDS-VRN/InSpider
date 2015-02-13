@@ -19,7 +19,7 @@
 	<div class="cds-tab-content">
 
 		<p>
-			<a href="#springUrl('/ba/gebruikersbeheer/bronhouders/-/create')">Nieuwe bronhouder toevoegen</a>
+			#buttonLink('Nieuwe bronhouder toevoegen', "#springUrl('/ba/gebruikersbeheer/bronhouders/-/create')")
 		</p>
 		
 		<table class="cds-table">
@@ -54,8 +54,8 @@
 						</address>
 					</td>
 					<td>
-						<a href="#springUrl('/ba/gebruikersbeheer/bronhouders/')$bronhouder.id/edit">Bewerken</a> 
-						<a href="#springUrl('/ba/gebruikersbeheer/bronhouders/')$bronhouder.id/delete">Verwijderen</a>
+						#buttonLink("Bewerken", "#springUrl('/ba/gebruikersbeheer/bronhouders/')$bronhouder.id/edit") 
+						#buttonLink("Verwijderen", "#springUrl('/ba/gebruikersbeheer/bronhouders/')$bronhouder.id/delete")
 					</td>
 				</tr>
 				#end
