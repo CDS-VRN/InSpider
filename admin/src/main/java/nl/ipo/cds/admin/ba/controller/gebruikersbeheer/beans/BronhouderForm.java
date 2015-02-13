@@ -14,13 +14,13 @@ import nl.ipo.cds.domain.Bronhouder;
  */
 public class BronhouderForm {
 
-	@NotNull
-	@Size (min = 1)
-	@Pattern (regexp = "[a-z0-9\\-_]+", flags = Pattern.Flag.CASE_INSENSITIVE)
+	@NotNull(message = "Er moet een code worden ingevuld voor deze bronhouder")
+	@Size (min = 1, message = "De code dient uit tenminste 1 karakter te bestaan")
+	@Pattern (regexp = "[a-z0-9\\-_]+", flags = Pattern.Flag.CASE_INSENSITIVE, message = "De code dient te bestaan uit een combinatie van letters, cijfers, - en _")
 	private String code = "";
 	
-	@NotNull
-	@Size (min = 2)
+	@NotNull(message = "Er dient een bronhoudernaam ingevuld te worden")
+	@Size (min = 2, message = "De bronhoudernaam dient uit tenminste 2 karakters te bestaan")
 	private String naam = "";
 	
 	private String contactNaam;
@@ -36,9 +36,9 @@ public class BronhouderForm {
 	@Email
 	private String contactEmailadres;
 	
-	@NotNull
-	@Size (min = 2)
-	@Pattern (regexp = "[a-z0-9\\-_]+", flags = Pattern.Flag.CASE_INSENSITIVE)
+	@NotNull(message = "Er dient een unieke identificatie voor de bronhouder te worden ingevuld")
+	@Size (min = 2, message = "De identificatie dient uit tenminste 2 karakters te bestaan")
+	@Pattern (regexp = "[a-z0-9\\-_]+", flags = Pattern.Flag.CASE_INSENSITIVE, message = "De identificatie dient te bestaan uit een combinatie van letters, cijfers, - en _")
 	private String commonName = "";
 
 	/**

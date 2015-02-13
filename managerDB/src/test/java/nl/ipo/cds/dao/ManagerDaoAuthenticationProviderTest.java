@@ -2,6 +2,7 @@ package nl.ipo.cds.dao;
 
 import static org.junit.Assert.fail;
 import nl.ipo.cds.categories.IntegrationTests;
+import nl.ipo.cds.domain.BronhouderThema;
 import nl.ipo.cds.domain.Gebruiker;
 import nl.ipo.cds.domain.TypeGebruik;
 
@@ -96,6 +97,30 @@ public class ManagerDaoAuthenticationProviderTest extends BaseLdapManagerDaoTest
 		assertNotAuthority (authentication, "ROLE_SUPERUSER");
 		assertAuthority (authentication, "ROLE_RAADPLEGER");
 		assertAuthority (authentication, "ROLE_DATABEHEERDER");
+		assertNotAuthority (authentication, "ROLE_VASTSTELLER");
+	}
+	
+	/**
+	 * Asserts that when a superuser is authenticated and there are no bronhouder-thema relations
+	 * stored the superuser shouldn't be assigned the RAADPLEGER, DATABEHEERDER or VASTSTELLER roles.
+	 */
+	@Test
+	public void testAuthenticateSuperuserWithoutBronhouderThema () {
+		// Delete all BronhouderThema instances:
+		for (final BronhouderThema bt: managerDao.getBronhouderThemas ()) {
+			managerDao.delete (bt);
+		}
+		
+		entityManager.flush ();
+		
+		createUser ("test-admin", "test", true);
+		
+		final Authentication authentication = authenticate ("test-admin", "test");
+		
+		assertAuthority (authentication, "ROLE_USER");
+		assertAuthority (authentication, "ROLE_SUPERUSER");
+		assertNotAuthority (authentication, "ROLE_RAADPLEGER");
+		assertNotAuthority (authentication, "ROLE_DATABEHEERDER");
 		assertNotAuthority (authentication, "ROLE_VASTSTELLER");
 	}
 	

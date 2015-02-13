@@ -26,3 +26,15 @@
 	});
 	</script>	
 #end
+
+#macro(buttonLink $label $href)
+<a href="$href" class="dijit dijitReset dijitInline dijitButton">
+	<span class="dijitReset dijitInline dijitButtonNode">
+		<span class="dijitReset dijitStretch dijitButtonContents">
+			<span class="dijitReset dijitInline dijitButtonText">
+				$label
+			</span>
+		</span>
+	</span>
+</a>
+#end

@@ -200,7 +200,7 @@ public final class BronhouderController {
 		if (commonName != null && !commonName.isEmpty ()) {
 			final Bronhouder duplicateCommonName = managerDao.getBronhouderByCommonName (commonName);
 			if (duplicateCommonName != null && !(bronhouder != null && bronhouder.getId ().equals (duplicateCommonName.getId ()))) {
-				bindingResult.rejectValue ("commonName", "COMMON_NAME_DUPLICATE", String.format ("De naam %s is al in gebruik bij een andere bronhouder", commonName));
+				bindingResult.rejectValue ("commonName", "COMMON_NAME_DUPLICATE", String.format ("De identificatie %s is al in gebruik bij een andere bronhouder", commonName));
 			}
 		}
 	}
