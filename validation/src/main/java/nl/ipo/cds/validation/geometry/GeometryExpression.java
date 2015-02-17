@@ -18,14 +18,17 @@ import nl.ipo.cds.validation.execute.Compiler;
 import nl.ipo.cds.validation.execute.CompilerException;
 import nl.ipo.cds.validation.execute.ExpressionExecutor;
 
+import org.deegree.cs.coordinatesystems.ICRS;
 import org.deegree.geometry.Geometry;
 import org.deegree.geometry.multi.MultiGeometry;
+import org.deegree.geometry.points.Points;
 import org.deegree.geometry.primitive.Curve;
 import org.deegree.geometry.primitive.Point;
 import org.deegree.geometry.primitive.Polygon;
 import org.deegree.geometry.primitive.Ring;
 import org.deegree.geometry.primitive.Surface;
 import org.deegree.geometry.standard.DefaultEnvelope;
+import org.deegree.geometry.standard.primitive.DefaultLinearRing;
 import org.deegree.geometry.standard.primitive.DefaultPoint;
 import org.deegree.geometry.validation.GeometryValidator;
 
@@ -145,19 +148,22 @@ public class GeometryExpression<K extends Enum<K> & ValidationMessage<K, C>, C e
 		return new AbstractUnaryTestExpression<K, C, T>(this, "IsInteriorDisconnected") {
 			@Override
 			public boolean test(T value, C context) {
-				if (!(value instanceof Polygon)) {
+				if (!(value instanceof Surface)) {
 					return false;
 				}
 
 				try {
 					final GeometryValidator validator = context.validateGeometry(value).validator;
-					final Polygon polygon = (Polygon) value;
+					final Surface polygon = (Surface) value;
+					final Ring exterior = new DefaultLinearRing("exterior", null, null, polygon
+							.getExteriorRingCoordinates());
 
 					final GeometryFactory geometryFactory = new GeometryFactory();
 
-					final LinearRing exteriorRing = getJTSRing(polygon.getExteriorRing(), validator);
-					final ArrayList<LinearRing> interiorRings = new ArrayList<LinearRing>();
-					for (final Ring ring : polygon.getInteriorRings()) {
+					final LinearRing exteriorRing = getJTSRing(exterior, validator);
+					final ArrayList<LinearRing> interiorRings = new ArrayList<>();
+					for (final Points points : polygon.getInteriorRingsCoordinates()) {
+						final Ring ring = new DefaultLinearRing("interior", null, null, points);
 						interiorRings.add(getJTSRing(ring, validator));
 					}
 
@@ -170,11 +176,7 @@ public class GeometryExpression<K extends Enum<K> & ValidationMessage<K, C>, C e
 					ConnectedInteriorTester connectedInteriorTester = new ConnectedInteriorTester(geometryGraph);
 
 					return !connectedInteriorTester.isInteriorsConnected();
-				} catch (InvocationTargetException e) {
-					throw new ExpressionEvaluationException(e);
-				} catch (IllegalArgumentException e) {
-					throw new ExpressionEvaluationException(e);
-				} catch (IllegalAccessException e) {
+				} catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e) {
 					throw new ExpressionEvaluationException(e);
 				}
 			}
