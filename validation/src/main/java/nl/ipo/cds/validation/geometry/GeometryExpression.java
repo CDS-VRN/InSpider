@@ -1,30 +1,19 @@
 package nl.ipo.cds.validation.geometry;
 
-import java.lang.invoke.MethodType;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-
-import nl.ipo.cds.validation.AbstractBinaryTestExpression;
-import nl.ipo.cds.validation.AbstractExpression;
-import nl.ipo.cds.validation.AbstractUnaryTestExpression;
-import nl.ipo.cds.validation.AttributeExpression;
-import nl.ipo.cds.validation.Expression;
-import nl.ipo.cds.validation.ExpressionEvaluationException;
-import nl.ipo.cds.validation.GeometryValidationStatus;
-import nl.ipo.cds.validation.ValidationMessage;
-import nl.ipo.cds.validation.ValidatorContext;
+import com.vividsolutions.jts.algorithm.RobustLineIntersector;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geomgraph.GeometryGraph;
+import com.vividsolutions.jts.operation.valid.ConnectedInteriorTester;
+import nl.ipo.cds.validation.*;
 import nl.ipo.cds.validation.execute.Compiler;
 import nl.ipo.cds.validation.execute.CompilerException;
 import nl.ipo.cds.validation.execute.ExpressionExecutor;
-
-import org.deegree.cs.coordinatesystems.ICRS;
 import org.deegree.geometry.Geometry;
 import org.deegree.geometry.multi.MultiGeometry;
 import org.deegree.geometry.points.Points;
 import org.deegree.geometry.primitive.Curve;
 import org.deegree.geometry.primitive.Point;
-import org.deegree.geometry.primitive.Polygon;
 import org.deegree.geometry.primitive.Ring;
 import org.deegree.geometry.primitive.Surface;
 import org.deegree.geometry.standard.DefaultEnvelope;
@@ -32,11 +21,10 @@ import org.deegree.geometry.standard.primitive.DefaultLinearRing;
 import org.deegree.geometry.standard.primitive.DefaultPoint;
 import org.deegree.geometry.validation.GeometryValidator;
 
-import com.vividsolutions.jts.algorithm.RobustLineIntersector;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geomgraph.GeometryGraph;
-import com.vividsolutions.jts.operation.valid.ConnectedInteriorTester;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 public class GeometryExpression<K extends Enum<K> & ValidationMessage<K, C>, C extends ValidatorContext<K, C>, T extends Geometry>
 		extends AttributeExpression<K, C, T> {
