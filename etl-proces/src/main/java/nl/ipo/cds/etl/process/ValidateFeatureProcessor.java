@@ -153,20 +153,24 @@ public class ValidateFeatureProcessor implements FeatureProcessor {
 				outputStream, 
 				errorStream
 			);
-		
-        if (attributeMapper.isValid () && filterer.isValid ()) {
-            attributeMapper.processFeatures (features, attributeMapperStream);
-        }
 
-		// Release resources (database locks etc.).
-        pipeline.finish();
+		try {
+			// This should be in a try-finally to make sure DB locks are released for a rollback upon exception throw.
+			if (attributeMapper.isValid() && filterer.isValid()) {
+				attributeMapper.processFeatures(features, attributeMapperStream);
+			}
+		} finally {
+			// Release resources (database locks etc.).
+			pipeline.finish();
+		}
 
-		// Post processing (after job validation etc.).
-        boolean success = pipeline.postProcess();
+		// Post processing (after job validation etc.). This will only trigger when no exceptions in the regular
+		// feature processing occur.
+		boolean success = pipeline.postProcess();
 
-        if (!success || errorStream.getFeatureCount () > 0) {
-            throw new ValidationException ("Validator encountered errors");
-        }
+		if (!success || errorStream.getFeatureCount() > 0) {
+			throw new ValidationException("Validator encountered errors");
+		}
 
 		return counter.getFeatureCount ();
 	}
