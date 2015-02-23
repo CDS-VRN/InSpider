@@ -922,8 +922,10 @@ public class ManagerDaoImpl implements ManagerDao {
 			value = (byte[])query.getSingleResult ();
 		} catch (NoResultException e) {
 			return null;
+		} catch (EmptyResultDataAccessException e) {
+			return null;
 		}
-		
+
 		try {
 			return WKBReader.read (value, null);
 		} catch (ParseException e) {
