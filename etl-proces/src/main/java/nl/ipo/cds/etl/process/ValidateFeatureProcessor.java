@@ -33,10 +33,16 @@ import nl.ipo.cds.etl.filtering.FeatureClipper;
 import nl.ipo.cds.etl.theme.AttributeDescriptor;
 import nl.ipo.cds.etl.theme.ThemeConfigException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.deegree.geometry.Envelope;
 
 public class ValidateFeatureProcessor implements FeatureProcessor {
-	
+
+
+
+	private static final Log technicalLog = LogFactory.getLog(ValidateFeatureProcessor.class);
+
 	private final AttributeMappingFactory attributeMappingFactory;
 	private final DatasetFiltererFactory datasetFilterFactory;
 	
@@ -161,7 +167,14 @@ public class ValidateFeatureProcessor implements FeatureProcessor {
 			}
 		} finally {
 			// Release resources (database locks etc.).
-			pipeline.finish();
+			try {
+				pipeline.finish();
+			} catch(RuntimeException e) {
+				// We suppress run time exceptions during clean up, or else they mask the exception thrown in the
+				// outer-try-catch block.
+				technicalLog.debug("Not all resources have been properly freed (Database locks might already been " +
+						"freed because of PSQLException up stream).",	e);
+			}
 		}
 
 		// Post processing (after job validation etc.). This will only trigger when no exceptions in the regular
