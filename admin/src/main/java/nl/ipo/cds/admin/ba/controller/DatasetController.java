@@ -35,6 +35,7 @@ import nl.ipo.cds.domain.BronhouderThema;
 import nl.ipo.cds.domain.Dataset;
 import nl.ipo.cds.domain.DatasetType;
 import nl.ipo.cds.domain.FeatureType;
+import nl.ipo.cds.domain.ImportJob;
 import nl.ipo.cds.domain.RemoveJob;
 import nl.ipo.cds.domain.Thema;
 import nl.ipo.cds.domain.TransformJob;
