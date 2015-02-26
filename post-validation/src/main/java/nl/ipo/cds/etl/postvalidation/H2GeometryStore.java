@@ -1,17 +1,7 @@
 package nl.ipo.cds.etl.postvalidation;
 
+import com.vividsolutions.jts.io.ParseException;
 import geodb.GeoDB;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
 import org.apache.commons.dbcp.BasicDataSource;
 import org.deegree.geometry.Geometry;
 import org.deegree.geometry.io.WKBWriter;
@@ -20,13 +10,17 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import com.vividsolutions.jts.io.ParseException;
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * H2 Geometry Store implementation.
  */
 @Service
-public class H2GeometryStore<T extends Serializable> implements IGeometryStore<T> {
+public class H2GeometryStore implements IGeometryStore {
 
 
     @Value("${bulkValidator.jdbcUrlFormat:jdbc\\:h2\\:%s}")
@@ -44,8 +38,8 @@ public class H2GeometryStore<T extends Serializable> implements IGeometryStore<T
         DataSource dataSource = loadStore(uuId);
         GeoDB.InitGeoDB(dataSource.getConnection());
         JdbcTemplate t = new JdbcTemplate(dataSource);
-        t.execute("CREATE TABLE geometries (id INT AUTO_INCREMENT PRIMARY KEY, geometry BLOB, feature BLOB);");
-        GeoDB.CreateSpatialIndex(dataSource.getConnection(), null, "GEOMETRIES", "GEOMETRY", "28992");
+        t.execute("CREATE TABLE geometries (id INT AUTO_INCREMENT PRIMARY KEY, geometry BLOB, feature_identifier VARCHAR, feature_local_id VARCHAR);");
+        GeoDB.CreateSpatialIndex(dataSource.getConnection(), "PUBLIC", "GEOMETRIES", "GEOMETRY", "28992");
         return dataSource;
     }
 
@@ -60,20 +54,17 @@ public class H2GeometryStore<T extends Serializable> implements IGeometryStore<T
     }
 
     @Override
-    public void addToStore(final DataSource dataSource, final Geometry geometry, final T feature) throws SQLException, ParseException, IOException {
+    public void addToStore(final DataSource dataSource, final Geometry geometry, String identifier, String localId) throws
+            SQLException,
+            ParseException, IOException {
         final NamedParameterJdbcTemplate t = new NamedParameterJdbcTemplate(dataSource);
-        final String insertStatement = "INSERT INTO geometries (geometry, feature) VALUES (:geometry, :feature)";
-        final Map<String, byte[]> params = new HashMap<String, byte[]>();
-        final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        final String insertStatement = "INSERT INTO geometries (geometry, feature_identifier, feature_local_id) VALUES (:geometry, :identifier, :local_id)";
+        final Map<String, Object> params = new HashMap<>();
 
         // srid=28992
         params.put("geometry", GeoDB.ST_GeomFromWKB(WKBWriter.write(geometry), 28992)); //geometry.getCoordinateSystem().)
-
-        ObjectOutputStream oos = new ObjectOutputStream(bos);
-        oos.writeObject(feature);
-        oos.flush();
-        params.put("feature", bos.toByteArray());
-        oos.close();
+        params.put("identifier", identifier);
+        params.put("local_id", localId);
         t.update(insertStatement, params);
     }
 
