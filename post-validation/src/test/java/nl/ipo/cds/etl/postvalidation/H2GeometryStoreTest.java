@@ -13,8 +13,6 @@ import org.junit.rules.TemporaryFolder;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -27,7 +25,7 @@ public class H2GeometryStoreTest {
 
 
 
-    private H2GeometryStore<TestPersistableFeature> h2GeometryStore;
+    private H2GeometryStore h2GeometryStore;
     private BasicDataSource dataSource;
     private final static String DB_NAME = "test-db-1337";
 
@@ -36,7 +34,7 @@ public class H2GeometryStoreTest {
 
     @Before
     public void setUp() throws Exception {
-        h2GeometryStore = new H2GeometryStore<>();
+        h2GeometryStore = new H2GeometryStore();
         Field field = H2GeometryStore.class.getDeclaredField("JDBC_URL_FORMAT");
         field.setAccessible(true);
         field.set(h2GeometryStore, String.format("jdbc:h2:%s/", testFolder.getRoot()) + "%s");
@@ -65,12 +63,12 @@ public class H2GeometryStoreTest {
     @Test
     public void testAddToStore() throws Exception {
         WKTReader reader = new WKTReader(null);
-        Geometry g = (Polygon) reader.read("SRID=28992;POLYGON((111446.5 566602,112035.5 566602,112035.5 566886,111446.5 566886,111446.5 566602))");
+        Geometry g = reader.read("SRID=28992;POLYGON((111446.5 566602,112035.5 566602,112035.5 566886,111446.5 566886,111446.5 566602))");
         TestPersistableFeature tpf = new TestPersistableFeature();
         tpf.setGeometry(g);
         tpf.setId("test-feature");
 
-        h2GeometryStore.addToStore(dataSource, g, tpf );
+        h2GeometryStore.addToStore(dataSource, g, tpf.getId(), tpf.getId() );
 
         JdbcTemplate t = new JdbcTemplate(dataSource);
 
@@ -78,12 +76,6 @@ public class H2GeometryStoreTest {
         Geometry g2 = (Polygon) reader.read(GeoDB.ST_AsText(t.queryForObject("SELECT geometry FROM geometries LIMIT 1", byte[].class)));
         assertEquals(g.toString(), g2.toString());
 
-        // Test if the Feature can properly get stored/retrieved.
-        ByteArrayInputStream bis = new ByteArrayInputStream(t.queryForObject("SELECT feature FROM geometries LIMIT 1", byte[].class));
-
-        ObjectInputStream ois = new ObjectInputStream(bis);
-        TestPersistableFeature tpf2 = (TestPersistableFeature) ois.readObject();
-        assertEquals(tpf, tpf2);
 
 
 
