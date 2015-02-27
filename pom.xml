@@ -74,7 +74,8 @@
 				<artifactId>maven-release-plugin</artifactId>
 				<version>2.4.1</version>
 				<configuration>
-					<goals>install</goals>
+					<!--  use -Dgoals=install to perform release without maven repository -->
+<!-- 				<goals>install</goals> -->
 					 <!-- no 'deploy' in order to be able to use release:perform without maven repository -->
 					<autoVersionSubmodules>true</autoVersionSubmodules>
 				</configuration>
