@@ -1,26 +1,13 @@
 package nl.ipo.cds.admin.ba.controller;
 
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.validation.Valid;
-
 import nl.idgis.commons.jobexecutor.JobCreator;
 import nl.ipo.cds.admin.reporting.ReportConfiguration;
 import nl.ipo.cds.dao.ManagerDao;
 import nl.ipo.cds.dao.TagDao;
-import nl.ipo.cds.domain.Gebruiker;
-import nl.ipo.cds.domain.GebruikerThemaAutorisatie;
-import nl.ipo.cds.domain.TagDTO;
-import nl.ipo.cds.domain.TagJob;
-import nl.ipo.cds.domain.Thema;
-import nl.ipo.cds.domain.TypeGebruik;
+import nl.ipo.cds.domain.*;
 import nl.ipo.cds.etl.db.annotation.Table;
 import nl.ipo.cds.etl.theme.ThemeConfig;
 import nl.ipo.cds.etl.theme.ThemeDiscoverer;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +16,12 @@ import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping("/ba/vaststellen")
@@ -81,17 +74,21 @@ public class TagDatasetController {
 		
 		// check that user is authorized to tag this thema (check typeGebruik and Thema authorisatie)
 		Gebruiker gebruiker = managerDao.getGebruiker(principal.getName());
-		Thema thema = managerDao.getThemaByName(dto.getThema());
-		List<GebruikerThemaAutorisatie> listAuthorisatie = managerDao.getGebruikerThemaAutorisatie(gebruiker);
-		boolean authorized = false;
-		for (GebruikerThemaAutorisatie gebruikerThemaAutorisatie : listAuthorisatie) {
-			if((gebruikerThemaAutorisatie.getTypeGebruik().equals(TypeGebruik.VASTSTELLER)) && (gebruikerThemaAutorisatie.getBronhouderThema().equals(thema))){
-				authorized=true;
+		if (!gebruiker.isSuperuser()) {
+			boolean authorized = false;
+			Thema thema = managerDao.getThemaByName(dto.getThema());
+			List<GebruikerThemaAutorisatie> listAuthorisatie = managerDao.getGebruikerThemaAutorisatie(gebruiker);
+			for (GebruikerThemaAutorisatie gebruikerThemaAutorisatie : listAuthorisatie) {
+				if (gebruikerThemaAutorisatie.getBronhouderThema().getThema().equals(thema) &&
+						gebruikerThemaAutorisatie.getTypeGebruik().isAllowed(TypeGebruik.VASTSTELLER)) {
+					authorized = true;
+					break; // Short-circuit.
+				}
 			}
-		}
-		if(!authorized){
-			model.addAttribute("authError", "Deze gebruiker heeft niet de rechten om dit thema vast te stellen");
-			return "/ba/vaststellen";
+			if (!authorized) {
+				model.addAttribute("authError", "Deze gebruiker heeft niet de rechten om dit thema vast te stellen");
+				return "/ba/vaststellen";
+			}
 		}
 		
 		// check if there is a job with the same tag already
