@@ -3,20 +3,18 @@
  */
 package nl.ipo.cds.dao.impl;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.sql.DataSource;
-
 import nl.ipo.cds.dao.TagDao;
-
+import nl.ipo.cds.domain.TagJob;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.sql.DataSource;
 
 /**
  * @author annes
@@ -27,9 +25,19 @@ public class TagDaoImpl implements TagDao {
 
 	private static final Log log = LogFactory.getLog(TagDaoImpl.class);
 
-	
+	private EntityManager entityManager;
+
 	private JdbcTemplate jdbcTemplate;
-	
+
+	@PersistenceContext(unitName = "cds")
+	public void setEntityManager(EntityManager entityManager) {
+		this.entityManager = entityManager;
+	}
+
+	public EntityManager getEntityManager () {
+		return entityManager;
+	}
+
 	@Inject
 	public void setDataSource(DataSource dataSource) {
 		jdbcTemplate = new JdbcTemplate(dataSource);
@@ -46,7 +54,7 @@ public class TagDaoImpl implements TagDao {
 		String sql = "select count(tag) from " + schemaName + "." + tableName + "_tagged where tag= ?";
 		log.debug("query" + sql + " will be executed");
 		Integer res = jdbcTemplate.queryForObject(sql, Integer.class, tag);
-		return res.intValue() >= 1;
+		return res > 0;
 	}
 
 	
@@ -54,24 +62,13 @@ public class TagDaoImpl implements TagDao {
 	 * @see nl.ipo.cds.dao.TagDao#doesTagJobWithIdExist(java.lang.String)
 	 */
 	@Override
-	public Boolean doesTagJobWithIdExist(String tag) {
-		log.debug("entered method doesTagJobWithIdExist");
-		String sql = "select parameters from manager.etljob inner join manager.job on manager.etljob.ID = manager.job.ID where manager.job.job_type = 'TAG' and (manager.job.status = 'PREPARED' or manager.job.status = 'CREATED' or manager.job.status = 'STARTED')";
-		log.debug("query" + sql + " will be executed");
-		List<String> columnResultSet = jdbcTemplate.query(sql, new RowMapper<String>() {
-		      public String mapRow(ResultSet resultSet, int i) throws SQLException {
-		          return resultSet.getString(1);
-		        }
-		      }); 
-		if (!columnResultSet.isEmpty()) {
-			for (String string : columnResultSet) {
-				if (string.isEmpty() || (!string.contains("\"tag\":\""+tag))) {
-					continue;
-				} else {
-					return string.contains("\"tag\":\""+ tag);
-				}
+	public Boolean doesTagJobWithIdExist(String tag, String thema) {
+		final TypedQuery<TagJob> jobQuery;
+		jobQuery = entityManager.createQuery("from TagJob as job where job.status = 'PREPARED' or job.status='CREATED' or job.status='STARTED'", TagJob.class);
+		for (TagJob job : jobQuery.getResultList()) {
+			if (job.getTag().equals(tag) && job.getThema().equals(thema)) {
+				return true;
 			}
-
 		}
 		return false;
 	}

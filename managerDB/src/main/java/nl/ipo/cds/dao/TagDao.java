@@ -14,6 +14,6 @@ public interface TagDao {
 
 	Boolean doesTagExist(String tag, String schemaName, String tableName);
 	
-	Boolean doesTagJobWithIdExist(String tag);
+	Boolean doesTagJobWithIdExist(String tag, String thema);
 	
 }

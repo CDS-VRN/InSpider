@@ -4,7 +4,6 @@
 package nl.ipo.cds.dao.impl;
 
 import nl.ipo.cds.dao.TagDao;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,9 +40,9 @@ public class TagDaoImplTest {
 	@Test
 	@Transactional
 	public void testDoesTagJobWithIdExist() {
-	boolean doesExist = tagDao.doesTagJobWithIdExist("testTag");
+	boolean doesExist = tagDao.doesTagJobWithIdExist("testTag", "LandelijkGebiedBeheer");
 	Assert.assertTrue(doesExist);
-	boolean doesNotExist = tagDao.doesTagJobWithIdExist("Deze niet");
+	boolean doesNotExist = tagDao.doesTagJobWithIdExist("Deze niet", "LandelijkGebiedBeheer");
 	Assert.assertTrue(!doesNotExist);
 		
 	}

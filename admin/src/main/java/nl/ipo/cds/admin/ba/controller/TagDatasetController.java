@@ -96,7 +96,8 @@ public class TagDatasetController {
 		//and does have either one of the following status: CREATED, PREPARED, STARTED. (FINISHED and ABORTED jobs can be ignored).
 		Table table = themeConfig.getFeatureTypeClass().getAnnotation(Table.class);
 		Assert.notNull(table, "table Annotation could not be determined for thema " + themeConfig.getFeatureTypeClass());
-		if(tagDao.doesTagExist(dto.tagId, table.schema(), table.name())|| tagDao.doesTagJobWithIdExist(dto.getTagId())){
+		if(tagDao.doesTagExist(dto.tagId, table.schema(), table.name())|| tagDao.doesTagJobWithIdExist(dto.getTagId()
+				, dto.getThema())){
 			model.addAttribute("tagIdError", "Het vaststel id " + dto.getTagId()+ " bestaat al!");
 			return "/ba/vaststellen";
 		}
