@@ -124,6 +124,29 @@ public class ManagerDaoAuthenticationProviderTest extends BaseLdapManagerDaoTest
 		assertNotAuthority (authentication, "ROLE_VASTSTELLER");
 	}
 	
+    /**
+     * Asserts that the user can login using the same credentials after saving the user. 
+     */
+    @Test
+    public void testPasswordAfterSave () {
+    	createUser ("test-admin", "test", true);
+    	
+    	final Authentication authentication = authenticate ("test-admin", "test");
+    	
+    	assertAuthority (authentication, "ROLE_VASTSTELLER");
+    	
+    	final Gebruiker user = managerDao.getGebruiker ("test-admin");
+    	managerDao.update (user);
+    	
+    	entityManager.flush ();
+    	
+    	final Authentication authentication2 = authenticate ("test-admin", "test");
+    	
+    	assertAuthority (authentication2, "ROLE_VASTSTELLER");
+    	
+    }
+	
+	
 	/**
 	 * Asserts whether the given authentication token doesn't have the provided authority.
 	 * 

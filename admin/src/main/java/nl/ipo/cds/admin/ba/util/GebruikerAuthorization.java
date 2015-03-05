@@ -185,7 +185,9 @@ public class GebruikerAuthorization {
 		final List<Thema> result = new ArrayList<Thema> ();
 		
 		for (final GebruikerThemaAutorisatie gta: managerDao.getGebruikerThemaAutorisatie (bronhouder)) {
-			result.add (gta.getBronhouderThema ().getThema ());
+			if (gta.getGebruiker ().getGebruikersnaam ().equals (getGebruiker ().getGebruikersnaam ()) && gta.getTypeGebruik ().isAllowed (typeGebruik)) {
+				result.add (gta.getBronhouderThema ().getThema ());
+			}
 		}
 		
 		return Collections.unmodifiableCollection (result);
