@@ -25,20 +25,34 @@ VALUES      ('1',
 
 create schema manager;
 
-CREATE TABLE manager.job(
-  job_type text NOT NULL,
-  id bigint NOT NULL,
-  priority integer NOT NULL,
-  result text,
-  status text
-)
-;
+    create table manager.job (
+        job_type varchar(20) not null,
+        id int8 not null,
+        createTime timestamp,
+        finishTime timestamp,
+        priority int4 not null,
+        result text,
+        startTime timestamp,
+        status varchar(255),
+        primary key (id)
+    );
 
-CREATE TABLE manager.etljob(
-  id bigint NOT NULL,
-  parameters character varying(250)
-)
-;
+    create table manager.etljob (
+        dataset_url varchar(255),
+        feature_count int4,
+        force_execution bool default false ,
+        geometry_error_count int4,
+        metadata_update_datum timestamp,
+        metadata_url varchar(255),
+        parameters TEXT,
+        uuid varchar(255),
+        verversen bool default false ,
+        wfsUrl varchar(255),
+        bronhouder_id int8,
+        datasettype_id int8,
+        id int8 not null,
+        primary key (id)
+    );
 
 INSERT INTO manager.job(
 		job_type,
@@ -57,7 +71,7 @@ INSERT INTO manager.etljob(
 		id,
 		parameters)
 VALUES	(12,
-		'"{"tag":"testTag","thema":"LandelijkGebiedBeheer"}"' 	
+		'{"tag":"testTag","thema":"LandelijkGebiedBeheer"}'
 );		
 
 

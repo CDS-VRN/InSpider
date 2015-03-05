@@ -203,7 +203,7 @@
 										</div>
 									</div>
 									#end
-									#if($authz.anyGranted("ROLE_SUPERUSER,ROLE_VASTSTELLER"))
+									#if($authz.anyGranted("ROLE_VASTSTELLER"))
 									<div id="tabs_ba_vaststellen" class="dijitTab">
 										<div class="dijitTabInnerDiv">
 											<div title="Vaststellen tab om datasets te taggen" class="dijitTabContent" onClick="location.href='#springUrl('/ba/vaststellen')';">
