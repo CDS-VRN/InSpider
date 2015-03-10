@@ -1,0 +1,1 @@
+create view manager.themabronhouderauthorization as select * from manager.bronhouderthema;

@@ -53,3 +53,5 @@ ALTER TABLE manager.joblog
 
 SET TIME ZONE UTC;
 -- ---------------------------------
+
+create view manager.themabronhouderauthorization as select * from manager.bronhouderthema;
