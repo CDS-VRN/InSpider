@@ -43,4 +43,6 @@ grant select on manager.joblog_overview to inspire;
 --grant select on manager.joblog_report_last to inspire;
 --grant select on manager.joblog_report_last_import to inspire;
 --grant select on manager.joblog_report_last_validate to inspire;
+
+grant select on manager.themabronhouderauthorization to inspire;
 -- ----------------------------------
