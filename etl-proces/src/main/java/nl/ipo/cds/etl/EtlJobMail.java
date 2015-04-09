@@ -1,8 +1,5 @@
 package nl.ipo.cds.etl;
 
-import java.io.StringWriter;
-import java.util.Properties;
-
 import nl.idgis.commons.jobexecutor.Job;
 import nl.idgis.commons.jobexecutor.Job.Status;
 import nl.idgis.commons.jobexecutor.JobLogger.LogLevel;
@@ -11,7 +8,6 @@ import nl.idgis.commons.jobexecutor.JobTypeIntrospector;
 import nl.ipo.cds.dao.ManagerDao;
 import nl.ipo.cds.domain.Bronhouder;
 import nl.ipo.cds.domain.EtlJob;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.mail.Email;
@@ -21,11 +17,14 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
+import java.io.StringWriter;
+import java.util.Properties;
+
 public class EtlJobMail implements JobMail {
 	
 	private static final Log technicalLog = LogFactory.getLog(EtlJobMail.class);
 
-	private String smtpHost, from, subject, host;
+	private String smtpHost, from, subject, host, hostProto;
 	private int smtpPort;
 	
 	private ManagerDao managerDao;
@@ -45,6 +44,7 @@ public class EtlJobMail implements JobMail {
 		VelocityContext context = new VelocityContext();
 		context.put("job", job);
 		context.put("host", host);
+		context.put("hostProto", hostProto);
 		
 		StringWriter writer = new StringWriter();
         template.merge(context, writer);
@@ -113,5 +113,9 @@ public class EtlJobMail implements JobMail {
 
 	public void setHost(String host) {
 		this.host = host;
+	}
+
+	public void setHostProto(String proto) {
+		this.hostProto = proto;
 	}
 }
