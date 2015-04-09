@@ -1,13 +1,11 @@
 package nl.ipo.cds.etl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import nl.ipo.cds.domain.Bronhouder;
 import nl.ipo.cds.domain.EtlJob;
 import nl.ipo.cds.domain.ValidateJob;
-
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class JobMailTest {
 
@@ -22,6 +20,7 @@ public class JobMailTest {
 		
 		EtlJobMail jobMail = new EtlJobMail();
 		jobMail.setHost("www.inspire-provincies.nl");
+		jobMail.setHostProto("http");
 		String msg = jobMail.createMsg(job);
 		
 		assertNotNull(msg);
