@@ -1,6 +1,7 @@
 package nl.ipo.cds.etl;
 
 import nl.ipo.cds.domain.Bronhouder;
+import nl.ipo.cds.domain.DatasetType;
 import nl.ipo.cds.domain.EtlJob;
 import nl.ipo.cds.domain.ValidateJob;
 import org.junit.Test;
@@ -17,6 +18,9 @@ public class JobMailTest {
 		EtlJob job = new ValidateJob ();
 		job.setId(100l);
 		job.setBronhouder(bronhouder);
+		DatasetType dt = new DatasetType();
+		dt.setId((long) 2002);
+		job.setDatasetType(dt);
 		
 		EtlJobMail jobMail = new EtlJobMail();
 		jobMail.setHost("www.inspire-provincies.nl");
