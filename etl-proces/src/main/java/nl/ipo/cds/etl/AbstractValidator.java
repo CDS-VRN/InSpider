@@ -1,20 +1,5 @@
 package nl.ipo.cds.etl;
 
-import java.lang.annotation.Annotation;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
 import nl.idgis.commons.jobexecutor.JobLogger;
 import nl.idgis.commons.jobexecutor.JobLogger.LogLevel;
 import nl.ipo.cds.domain.EtlJob;
@@ -28,10 +13,17 @@ import nl.ipo.cds.validation.execute.Compiler;
 import nl.ipo.cds.validation.execute.CompilerException;
 import nl.ipo.cds.validation.gml.codelists.CodeListFactory;
 import nl.ipo.cds.validation.logical.AndExpression;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.deegree.geometry.primitive.Point;
+
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.*;
 
 public abstract class AbstractValidator<T extends PersistableFeature, Keys extends Enum<Keys> & ValidatorMessageKey<Keys, Context>, Context extends ValidatorContext<Keys, Context>> 
 	extends Validation<Keys, Context> 
@@ -232,10 +224,24 @@ public abstract class AbstractValidator<T extends PersistableFeature, Keys exten
 			throw new RuntimeException (e);
 		}
 	}
-	
+
+	/**
+	 * Allows to perform post-job validation.
+	 * @param job The job.
+	 * @param reporter Use this to report additional validation errors.
+	 * @param context The context.
+	 */
 	public void afterJob (final EtlJob job, final Reporter reporter, final Context context) {
 	}
-	
+
+	/**
+	 * Cleanup method to clean resources.
+	 * @param job The job that was running.
+	 * @param context The context.
+	 */
+	public void afterJobCleanup (final EtlJob job, final Context context) {
+	}
+
 	public void beforeFeature (final EtlJob job, final EventLogger<Keys> logger, final Context context, final T feature) {
 	}
 	
@@ -335,8 +341,12 @@ public abstract class AbstractValidator<T extends PersistableFeature, Keys exten
 				afterFeature (etlJob, logger, context, feature);
 			}
 
+
+
+
 			@Override
 			public void finish() {
+				afterJobCleanup(etlJob, context);
 			}
 
 			@Override

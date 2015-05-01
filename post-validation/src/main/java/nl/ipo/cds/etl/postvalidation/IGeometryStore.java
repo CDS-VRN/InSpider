@@ -12,14 +12,14 @@ import java.sql.SQLException;
  */
 public interface IGeometryStore {
 
-    public DataSource createStore(final String uuId) throws SQLException;
+    DataSource createStore(final String uuId) throws SQLException;
 
-    public DataSource loadStore(final String uuId) throws SQLException;
+    DataSource loadStore(final String uuId) throws SQLException;
 
-    public void addToStore(final DataSource dataSource, Geometry geometry, String identifier, String localId) throws
+    void addToStore(final DataSource dataSource, Geometry geometry, String identifier, String localId) throws
             SQLException,
             ParseException, IOException;
 
-    public void destroyStore(final DataSource dataSource);
+    void destroyStore(final DataSource dataSource);
 
 }
