@@ -253,11 +253,20 @@ public class AutorisatieController {
 			}
 		});
 
+		final Set<String> usernames = new HashSet<String> ();
+		for (final Gebruiker gebruiker: gebruikers) {
+			usernames.add (gebruiker.getGebruikersnaam ());
+		}
+		
 		// Merge the two lists:
 		int i = 0;
 		final List<GebruikerThemas> result = new ArrayList<GebruikerThemas> ();
 		for (final Gebruiker gebruiker: gebruikers) {
 			final List<GebruikerThemaAutorisatie> gebruikerGtas = new ArrayList<GebruikerThemaAutorisatie> ();
+
+			while (i < gtas.size () && !usernames.contains (gtas.get (i).getGebruiker ().getGebruikersnaam ())) {
+				++ i;
+			}
 			
 			while (i < gtas.size () && gebruiker.getGebruikersnaam ().equals (gtas.get (i).getGebruiker ().getGebruikersnaam ())) {
 				gebruikerGtas.add (gtas.get (i));
