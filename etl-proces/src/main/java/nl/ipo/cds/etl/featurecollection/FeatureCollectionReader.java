@@ -142,9 +142,9 @@ public class FeatureCollectionReader {
 						} else {							
 							while(streamReader.hasNext()) {
 								if(streamReader.isStartElement()) {
-									QName currentName = streamReader.getName();
-									if(WFSResponseReader.GML_NAMESPACES.contains (currentName.getNamespaceURI())
-										&& currentName.getLocalPart().equals("featureMember")) {										
+									//QName currentName = streamReader.getName();
+									if(isGmlLocalName(streamReader,"featureMember") ||
+											SubstitutionGroupHelper.isFeatureMemberType(streamReader, applicationSchema)) {										
 										nextTag();											
 										
 										logger.debug("next feature fetched");
@@ -224,26 +224,32 @@ public class FeatureCollectionReader {
 		this.applicationSchema = applicationSchema;
 	}
 
+	/**
+	 * Note: assumes that streamReader is at start of FeatureCollection element
+	 * @param streamReader
+	 * @param featureType
+	 * @return
+	 * @throws XMLStreamException
+	 * @throws XMLParsingException
+	 * @throws UnknownCRSException
+	 */
 	FeatureCollection parseCollection(final XMLStreamReader streamReader, final FeatureType featureType) throws XMLStreamException, XMLParsingException, UnknownCRSException {
 		Envelope boundedBy = null;
 		
-		if(streamReader.isStartElement()) {
+		//if(streamReader.isStartElement()) {
 			QName rootName = streamReader.getName();
-			if((rootName.getNamespaceURI().equals(WFSResponseReader.WFS_NS) || WFSResponseReader.GML_NAMESPACES.contains (rootName.getNamespaceURI ()))
-				&& rootName.getLocalPart().equals("FeatureCollection")) {									
+		//	if((rootName.getNamespaceURI().equals(WFSResponseReader.WFS_NS) || WFSResponseReader.GML_NAMESPACES.contains (rootName.getNamespaceURI ()))
+		//		&& rootName.getLocalPart().equals("FeatureCollection")) {									
 				while(streamReader.hasNext()) {
 					if(streamReader.isStartElement()) {
-						if(WFSResponseReader.GML_NAMESPACES.contains (streamReader.getNamespaceURI ())) {
-							String localName = streamReader.getLocalName();
-							if(localName.equals("featureMember")) {
-								return new DefaultFeatureCollection(streamReader, boundedBy, false, featureType);
-							} else if(localName.equals("featureMembers")) {
-								return new DefaultFeatureCollection(streamReader, boundedBy, true, featureType);
-							} else if(localName.equals("boundedBy")) {
-								streamReader.nextTag();			
-								GMLStreamReader gmlStreamReader = GMLInputFactory.createGMLStreamReader(gmlVersion, streamReader);								
-								boundedBy = (Envelope)gmlStreamReader.readGeometryOrEnvelope();
-							}
+						if(isGmlLocalName(streamReader,"featureMember")||SubstitutionGroupHelper.isFeatureMemberType(streamReader, applicationSchema)) {
+							return new DefaultFeatureCollection(streamReader, boundedBy, false, featureType);
+						} else if(isGmlLocalName(streamReader,"featureMembers")) {
+							return new DefaultFeatureCollection(streamReader, boundedBy, true, featureType);
+						} else if(isGmlLocalName(streamReader,"boundedBy")) {
+							streamReader.nextTag();			
+							GMLStreamReader gmlStreamReader = GMLInputFactory.createGMLStreamReader(gmlVersion, streamReader);								
+							boundedBy = (Envelope)gmlStreamReader.readGeometryOrEnvelope();
 						}
 					} else if(streamReader.isEndElement() && streamReader.getName().equals(rootName)) {
 						return new EmptyFeatureCollection(boundedBy, featureType);
@@ -251,12 +257,17 @@ public class FeatureCollectionReader {
 					
 					streamReader.next();
 				}									
-			}
+		//	}
 			
-			throw new RuntimeException("XML stream is not a feature collection");			
-		} else {
+	//		throw new RuntimeException("XML stream is not a feature collection");			
+	//	} else {
 			throw new RuntimeException("Empty XML stream");
-		}
+	//	}
+	}
+
+	private boolean isGmlLocalName(final XMLStreamReader streamReader, String localName) {
+		return WFSResponseReader.GML_NAMESPACES.contains (streamReader.getNamespaceURI ()) &&
+				streamReader.getLocalName().equals(localName);
 	}
 	
 	public static GenericFeature createGenericFeature (final Feature feature, final FeatureType featureType) {

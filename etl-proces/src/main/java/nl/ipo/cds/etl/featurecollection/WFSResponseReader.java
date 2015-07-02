@@ -1,6 +1,7 @@
 package nl.ipo.cds.etl.featurecollection;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -13,6 +14,7 @@ import nl.ipo.cds.etl.featuretype.GMLFeatureTypeParser;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.deegree.commons.tom.gml.GMLObjectType;
 import org.deegree.commons.xml.XMLParsingException;
 import org.deegree.cs.exceptions.UnknownCRSException;
 import org.deegree.feature.types.AppSchema;
@@ -145,13 +147,17 @@ public class WFSResponseReader {
 			@Override
 			public boolean isFeatureCollection() {
 
-				technicalLog.debug("Startelement: " + streamReader.isStartElement() + "; namespaceURI: " + streamReader.getNamespaceURI() + "; localName: " + streamReader.getLocalName());
+				technicalLog.debug("Startelement: "
+						+ streamReader.isStartElement() + "; namespaceURI: "
+						+ streamReader.getNamespaceURI() + "; localName: "
+						+ streamReader.getLocalName());
 
-				return featureCollection != null || (
-					streamReader.isStartElement()
-					&& (streamReader.getNamespaceURI().equals(WFS_NS) || GML_NAMESPACES.contains (streamReader.getNamespaceURI ()))
-					&& streamReader.getLocalName().equals("FeatureCollection")
-				);
+				
+				return featureCollection != null
+						|| SubstitutionGroupHelper.isFeatureCollectionType(streamReader, applicationSchema);			
+				
+				
+				
 			}
 
 			@Override
